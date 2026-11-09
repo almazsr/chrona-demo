@@ -2,7 +2,7 @@
   'use strict';
   const { $, $$, esc, D, hm, wd, p2, dayOf, dateOf, fmtWhen, fmtDur, endLabel, range, prLabel, toLocal } = C;
   const IC = C.icons, S = C.store.state, A = () => C.actions;
-  const PXH = 44, MIN_H = 16;
+  const PXH = 44, MIN_H = 15 / 60 * PXH - 2;
   let root = null, week = 0, drag = null, create = null, ghost = null, lastDragEnd = 0;
   const weekStart = () => C.clock.weekStart + week * 7;
   const byKey = k => C.solver.items().find(it => it.key === k);
