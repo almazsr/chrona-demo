@@ -40,12 +40,15 @@
     const fx = it.kind === 'fixed', done = it.done;
     const partialWhy = done ? 'Already done' : fx ? 'Only flexible time blocks can be partially done' : '';
     const postponeWhy = done ? 'Already done' : fx ? 'Fixed time blocks don\u2019t move by themselves. Drag it in the calendar or edit its start' : '';
-    const ci = (act, icon, label, extra = '', v = '') => `<div class="ci${extra}" data-act="${act}" data-k="${key}"${v !== '' ? ` data-v="${v}"` : ''}><span class="ic">${icon}</span><span class="lab">${label}</span></div>`;
+    const cat = C.catOf(it.cat);
+    const flipWhy = done ? 'Already done' : it.s <= C.clock.now ? 'Already started' : !fx ? '' : it.occ ? 'Repeating time blocks are always fixed' : cat.fixed ? `${cat.name} is a fixed category, so its time blocks are always fixed` : '';
+    const ci = (act, icon, label, extra = '', v = '', tip = '') => `<div class="ci${extra}" data-act="${act}" data-k="${key}"${v !== '' ? ` data-v="${v}"` : ''}${tip ? ` title="${esc(tip)}"` : ''}><span class="ic">${icon}</span><span class="lab">${label}</span></div>`;
     cmenu.classList.remove('staged');
     cmenu.innerHTML =
       ci('done', done ? IC.undo : IC.check, done ? 'Undone' : 'Done')
       + `<div class="ci${partialWhy ? ' dis' : ''}" data-parent="1"${partialWhy ? ` title="${esc(partialWhy)}"` : ''}><span class="ic">${IC.half}</span><span class="lab">Partially Done</span><span class="arr">›</span><div class="sub">${remHtml()}</div></div>`
       + `<div class="ci${postponeWhy ? ' dis' : ''}" data-parent="1"${postponeWhy ? ` title="${esc(postponeWhy)}"` : ''}><span class="ic">${IC.later}</span><span class="lab">Postpone</span><span class="arr">›</span><div class="sub">${ppHtml(it, null)}</div></div>`
+      + (fx ? ci('unfix', IC.swap, 'Make Flexible', flipWhy ? ' dis' : '', '', flipWhy) : ci('fix', IC.lock, 'Make Fixed', flipWhy ? ' dis' : '', '', flipWhy))
       + '<div class="csep"></div>'
       + ci('edit', IC.edit, 'Edit')
       + '<div class="csep"></div>'
@@ -71,6 +74,8 @@
   function runAction(act, key, v) {
     const it = byKey(key); if (!it) return;
     if (act === 'done') toggleDone(key);
+    else if (act === 'fix') makeFixed(it);
+    else if (act === 'unfix') makeFlexible(it);
     else if (act === 'edit') C.view.openForm('edit', it);
     else if (act === 'delete') { if (it.occ && !v) askScope(`Delete \u201c${esc(it.title)}\u201d`, sc => startDelete(key, sc)); else startDelete(key, v); }
   }
@@ -148,6 +153,31 @@
     const it = byKey(key); if (!it) return; closeAll();
     if (it.done) { if (it.ref.occ) C.series.exOf(C.series.find(it.ref.sid), it.ref.day).done = false; else it.ref.done = false; rerender(); C.ui.toast(`Marked \u201c${esc(it.title)}\u201d as not done`); return; }
     markDone(it); rerender(); C.ui.toast(`Marked \u201c${esc(it.title)}${it.part ? ' \u00b7 ' + it.part : ''}\u201d as done`);
+  }
+
+  // ---------- make fixed / make flexible (glossary: Pin) ----------
+  // Make Fixed pins the block where it is now; for a part of a split task only that part becomes fixed
+  function makeFixed(it) {
+    const r = it.ref; let nf = null, rest = 0;
+    if (S.tasks.includes(r)) {
+      nf = { id: C.store.id('f'), title: r.title, cat: r.cat, s: it.s, e: it.e, pr: r.pr, done: false };
+      S.fixed.push(nf); r.dur -= it.e - it.s; rest = r.dur;
+      if (r.dur <= 0) { S.tasks = S.tasks.filter(x => x !== r); delete S.placement[r.id]; }
+    } else if (S.locked.includes(r)) { S.locked = S.locked.filter(x => x !== r); nf = { id: r.id, title: r.title, cat: r.cat, s: r.s, e: r.e, pr: r.pr, done: !!r.done }; S.fixed.push(nf); }
+    if (!nf) return;
+    C.view.focusRef = nf;
+    C.view.adjust(`\u201c${esc(it.title)}\u201d is now fixed \u00b7 ${placeText(it.s)}\u2013${endLabel(it.s, it.e)}${it.part && rest > 0 ? ` \u00b7 the other ${fmtDur(rest)} stay flexible` : ''}`);
+  }
+  // Make Flexible hands the block back to schedule adjustment, keeping title, category, priority and duration
+  function makeFlexible(it) {
+    const r = it.ref; if (!S.fixed.includes(r)) return;
+    S.fixed = S.fixed.filter(x => x !== r);
+    const t = { id: C.store.id('t'), title: r.title, cat: r.cat, dur: r.e - r.s, pr: r.pr ?? DEF_PR, net: null, dl: null, order: ++S.seq };
+    S.tasks.push(t); C.view.focusRef = t;
+    C.view.adjust(null, () => {
+      const p = S.placement[t.id], first = p && p.pieces[0];
+      C.ui.toast(`\u201c${esc(t.title)}\u201d is now flexible \u00b7 placed ${first ? placeText(first[0]) : 'nowhere yet'}${showLink(first, t)}`, 6000);
+    });
   }
 
   // ---------- partially done ----------
@@ -294,7 +324,7 @@
   function flushDelete() { if (tbd) { clearTimeout(tbdTimer); finalizeDelete(); } }
 
   C.actions = {
-    openMenu, closeMenu, closeAll, runAction, toggleDone, markDone, partialDone, postpone, startDelete, flushDelete, undoDelete, isTbd,
+    openMenu, closeMenu, closeAll, runAction, toggleDone, markDone, partialDone, postpone, makeFixed, makeFlexible, startDelete, flushDelete, undoDelete, isTbd,
     askScope, valuesOf, commitForm, editOcc, onDrop, closeDialog, byKey,
     wireStaged, stagedClick, remHtml, ppHtml, setStage: (el, it) => { stage = el ? { el, it, remaining: null } : null; }, postponeHint, POSTPONE,
     hasDialog: () => !!dialog || !!pendingDrop, resetView,
