@@ -7,7 +7,7 @@
 
   const TEXT = {
     greet: "Hi! I'll help you set up your week in two short steps. Ask me anything, or start right away.",
-    stepSpaces: 'Step 1: time spaces. A time space is a recurring part of your week kept for certain tasks, such as business hours for work. Pick the ones that fit your week. You can adjust hours with \u270e.',
+    stepSpaces: 'Step 1: time spaces. A time space is a recurring part of your week kept for certain tasks, such as business hours for work. Pick the ones that fit your week. You can adjust hours with the pencil.',
     howSpaces: 'Think of time spaces as lanes in your week. Each category of tasks is linked to one or more time spaces: work goes into business hours, family plans into family time. When Chrona arranges your tasks, it uses only the hours of the linked time spaces, and splits big tasks across them if needed. You can change time spaces later in Settings.',
     stepCats: 'Step 2: categories. A category groups similar tasks, like Work or Gym. Linking it to time spaces tells Chrona when to schedule those tasks, and its color marks them in your calendar.',
     howCats: "When you add a task, you give it a category (or Chrona uses the default one). Chrona then places the task only inside the time spaces linked to that category: Work tasks inside business hours, Side hustle tasks inside free time. The default category is used whenever you don't pick one.",
@@ -73,7 +73,7 @@
       case 'greet':
         return C.esc(TEXT.greet) + (!started() ? `<br>${PILL('start', "Let's get started")}` : '');
       case 'step-spaces':
-        return `<b>Step 1: time spaces.</b> A time space is a recurring part of your week kept for certain tasks, such as business hours for work. Pick the ones that fit your week. You can adjust hours with \u270e.
+        return `<b>Step 1: time spaces.</b> A time space is a recurring part of your week kept for certain tasks, such as business hours for work. Pick the ones that fit your week. You can adjust hours with <span class="su-pencil">${C.sc.PENCIL}</span>.
           <div class="su-chips">${C.sc.spaceChips(live) || '<span class="muted">No time spaces saved.</span>'}</div>
           ${live ? `<div class="su-acts">${PILL('how', 'How it works?', 'ghost')}${st().spaces.length ? PILL('proceed', 'Proceed \u2192', 'primary') : ''}</div>` : ''}`;
       case 'step-cats':

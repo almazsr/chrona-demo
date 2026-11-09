@@ -39,7 +39,7 @@
     if (!keepPop) closePop();
     const fx = it.kind === 'fixed', done = it.done;
     const partialWhy = done ? 'Already done' : fx ? 'Only flexible time blocks can be partially done' : '';
-    const postponeWhy = done ? 'Already done' : fx ? 'Fixed time blocks don\u2019t move by themselves. Drag it or use Move' : '';
+    const postponeWhy = done ? 'Already done' : fx ? 'Fixed time blocks don\u2019t move by themselves. Drag it in the calendar or edit its start' : '';
     const ci = (act, icon, label, extra = '', v = '') => `<div class="ci${extra}" data-act="${act}" data-k="${key}"${v !== '' ? ` data-v="${v}"` : ''}><span class="ic">${icon}</span><span class="lab">${label}</span></div>`;
     cmenu.classList.remove('staged');
     cmenu.innerHTML =
@@ -47,7 +47,7 @@
       + `<div class="ci${partialWhy ? ' dis' : ''}" data-parent="1"${partialWhy ? ` title="${esc(partialWhy)}"` : ''}><span class="ic">${IC.half}</span><span class="lab">Partially Done</span><span class="arr">›</span><div class="sub">${remHtml()}</div></div>`
       + `<div class="ci${postponeWhy ? ' dis' : ''}" data-parent="1"${postponeWhy ? ` title="${esc(postponeWhy)}"` : ''}><span class="ic">${IC.later}</span><span class="lab">Postpone</span><span class="arr">›</span><div class="sub">${ppHtml(it, null)}</div></div>`
       + '<div class="csep"></div>'
-      + ci('edit', IC.edit, 'Edit') + ci('resize', IC.resize, 'Resize') + ci('move', IC.move, 'Move')
+      + ci('edit', IC.edit, 'Edit')
       + '<div class="csep"></div>'
       + (it.occ
         ? `<div class="ci danger" data-parent="1"><span class="ic">${IC.trash}</span><span class="lab">Delete</span><span class="arr">›</span><div class="sub">${C.series.SCOPES.map(([v, l]) => ci('delete', IC.repeat, l, '', v)).join('')}</div></div>`
@@ -72,7 +72,6 @@
     const it = byKey(key); if (!it) return;
     if (act === 'done') toggleDone(key);
     else if (act === 'edit') C.view.openForm('edit', it);
-    else if (act === 'move' || act === 'resize') { if (C.view.moveResize) C.view.moveResize(act, it); else if (act === 'move') askMove(it); else askResize(it); }
     else if (act === 'delete') { if (it.occ && !v) askScope(`Delete \u201c${esc(it.title)}\u201d`, sc => startDelete(key, sc)); else startDelete(key, v); }
   }
 
@@ -179,67 +178,6 @@
   }
   function closeDialog() { const ov = $('#cx-ov'); ov.hidden = true; ov.innerHTML = ''; dialog = null; }
 
-
-  // ---------- move / resize (the list has no grid to click, so they ask for a value) ----------
-  function moveTo(it, start) {
-    const r = it.ref, len = it.e - it.s, s = start, e = start + len;
-    if (S.fixed.includes(r)) { r.s = s; r.e = e; C.view.focusRef = r; C.view.adjust(`Moved \u201c${esc(r.title)}\u201d to ${range(s, e)}`); return; }
-    let ref;
-    if (S.tasks.includes(r)) { ref = { id: it.key, title: r.title, cat: r.cat, s, e, pr: r.pr }; S.fixed.push(ref); r.dur -= len; if (r.dur < MIN_PIECE) { S.tasks = S.tasks.filter(x => x !== r); delete S.placement[r.id]; } }
-    else { S.locked = S.locked.filter(x => x !== r); ref = { ...r, s, e }; S.fixed.push(ref); }
-    C.view.focusRef = ref;
-    C.view.adjust(`\u201c${esc(it.title)}\u201d is now fixed at ${range(s, e)}`);
-  }
-  function askMove(it) {
-    const ov = $('#cx-ov'), fx = it.kind === 'fixed', len = it.e - it.s, split = it.part && S.tasks.includes(it.ref);
-    ov.innerHTML = `<div class="modal"><h5>Move \u201c${esc(it.title)}${it.part ? ' \u00b7 ' + it.part : ''}\u201d</h5>
-      <p style="margin:0 0 8px;color:#3b4656">Now ${range(it.s, it.e)}. New start:</p>
-      <input class="pin" data-in="when" placeholder="tmr 15:00, eow 10:00, 05/11 14:00"><div class="prev"></div>
-      <input type="datetime-local" class="pin" data-in="dt" style="margin-top:4px">
-      ${fx ? '' : `<p class="muted" style="margin:10px 0 0;line-height:1.5">It\u2019s flexible, so it becomes fixed at this time and schedule adjustment won\u2019t move it.${split ? ` Only this part (${fmtDur(len)}) becomes fixed; the other ${fmtDur(it.ref.dur - len)} stay flexible.` : ''}</p>`}
-      <div class="actions"><span class="b" data-dlg="cancel">Cancel</span><span class="b p" data-dlg="ok">${fx ? 'Move' : 'Make fixed and move'}</span></div></div>`;
-    ov.hidden = false;
-    const inp = ov.querySelector('[data-in="when"]'), dt = ov.querySelector('[data-in="dt"]'), pv = ov.querySelector('.prev');
-    const check = () => {
-      const v = inp.value.trim(); inp.classList.remove('err');
-      if (!v) { pv.textContent = ''; pv.className = 'prev'; return null; }
-      const t = parseWhen(v, 'net'); let msg = '';
-      if (Number.isNaN(t)) msg = 'Couldn\u2019t read this. Try tmr 15:00 or 05/11 14:00';
-      else if (!/\d{1,2}:\d{2}$/.test(v)) msg = 'Add a time, e.g. tmr 15:00';
-      else if (t < C.clock.now) msg = `${fmtWhen(t)} is in the past`;
-      if (msg) { pv.textContent = msg; pv.className = 'prev bad'; return null; }
-      pv.textContent = `\u2192 ${range(t, t + len)}`; pv.className = 'prev'; return t;
-    };
-    inp.addEventListener('input', () => { const t = check(); if (t != null) dt.value = toLocal(t); });
-    dt.addEventListener('input', () => { const t = fromLocal(dt.value); if (t != null) { inp.value = toLocal(t).replace('T', ' ').replace(/^(\d{4})-(\d{2})-(\d{2})/, (_, y, m, d) => `${d}/${m}/${y.slice(2)}`); check(); } });
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') dialog.ok(); });
-    setTimeout(() => inp.focus(), 20);
-    dialog = { ok: () => { const t = check(); if (t == null) { inp.classList.add('err'); if (!inp.value.trim()) { pv.textContent = 'Enter a start, e.g. tmr 15:00'; pv.className = 'prev bad'; } return; } closeDialog(); moveTo(it, t); }, cancel: closeDialog };
-  }
-  function askResize(it) {
-    const ov = $('#cx-ov'), cur = it.e - it.s, task = S.tasks.includes(it.ref) ? it.ref : null;
-    ov.innerHTML = `<div class="modal"><h5>Resize \u201c${esc(it.title)}${it.part ? ' \u00b7 ' + it.part : ''}\u201d</h5>
-      <p style="margin:0 0 8px;color:#3b4656">Now ${fmtDur(cur)}${it.part && task ? ` of ${fmtDur(task.dur)} in total` : ''}. New duration:</p>
-      <input class="pin" data-in="dur" placeholder="e.g. 45m, 1h 30m" value="${fmtDur(cur)}"><div class="prev"></div>
-      <div class="actions"><span class="b" data-dlg="cancel">Cancel</span><span class="b p" data-dlg="ok">Resize</span></div></div>`;
-    ov.hidden = false;
-    const inp = ov.querySelector('[data-in="dur"]'), pv = ov.querySelector('.prev');
-    const check = () => {
-      const d = parseDur(inp.value), ok = d && !Number.isNaN(d) && d >= 15; inp.classList.toggle('err', !!inp.value.trim() && !ok);
-      if (!inp.value.trim()) { pv.textContent = ''; pv.className = 'prev'; return null; }
-      if (!ok) { pv.textContent = d && d < 15 ? 'At least 15m' : 'Try 45m, 2h or 1h 30m'; pv.className = 'prev bad'; return null; }
-      pv.textContent = it.kind === 'fixed' ? `= ${fmtDur(d)} \u00b7 ${hm(it.s)}\u2013${endLabel(it.s, it.s + d)}` : `= ${fmtDur(d)}${task && it.part ? ` \u00b7 ${fmtDur(task.dur - cur + d)} in total` : ''}`; pv.className = 'prev'; return d;
-    };
-    inp.addEventListener('input', check); check();
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') dialog.ok(); });
-    setTimeout(() => { inp.focus(); inp.select(); }, 20);
-    dialog = {
-      ok: () => { const d = check(); if (d == null) { inp.classList.add('err'); return; } closeDialog(); if (d === cur) return;
-        const r = it.ref; if (task) r.dur = Math.max(15, r.dur + d - cur); else r.e = r.s + d;
-        C.view.focusRef = r; C.view.adjust(`\u201c${esc(it.title)}\u201d is now ${fmtDur(d)}`); },
-      cancel: closeDialog,
-    };
-  }
 
   // ---------- delete with undo ----------
   function startDelete(key, scope) {
@@ -357,7 +295,7 @@
 
   C.actions = {
     openMenu, closeMenu, closeAll, runAction, toggleDone, markDone, partialDone, postpone, startDelete, flushDelete, undoDelete, isTbd,
-    askScope, askMove, askResize, moveTo, valuesOf, commitForm, editOcc, onDrop, closeDialog, byKey,
+    askScope, valuesOf, commitForm, editOcc, onDrop, closeDialog, byKey,
     wireStaged, stagedClick, remHtml, ppHtml, setStage: (el, it) => { stage = el ? { el, it, remaining: null } : null; }, postponeHint, POSTPONE,
     hasDialog: () => !!dialog || !!pendingDrop, resetView,
   };

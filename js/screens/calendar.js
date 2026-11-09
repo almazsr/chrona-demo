@@ -2,8 +2,10 @@
   'use strict';
   const { $, $$, esc, D, hm, wd, p2, dayOf, dateOf, fmtWhen, fmtDur, endLabel, range, prLabel, toLocal } = C;
   const IC = C.icons, S = C.store.state, A = () => C.actions;
-  const PXH = 44;
-  let root = null, week = 0, target = null, pick = null, drag = null, lastDragEnd = 0;
+  const PXH = 44, MIN_VIS = Math.ceil(16 / PXH * 60);
+  let root = null, week = 0, drag = null, create = null, ghost = null, lastDragEnd = 0;
+  // a short block is drawn taller than its duration; lay cards out by what is drawn so they never cover each other
+  const vis = it => Math.max(it.e, it.s + MIN_VIS);
   const weekStart = () => C.clock.weekStart + week * 7;
   const byKey = k => C.solver.items().find(it => it.key === k);
   const pop = () => $('#cx-pop');
@@ -20,13 +22,13 @@
     for (let i = 0; i < 7; i++) {
       const d = d0 + i, list = all.filter(it => dayOf(it.s) === d).sort((x, y2) => x.s - y2.s || y2.e - x.e);
       const clusters = []; let cl = [], end = -Infinity;
-      for (const it of list) { if (cl.length && it.s >= end) { clusters.push(cl); cl = []; end = -Infinity; } cl.push(it); end = Math.max(end, it.e); }
+      for (const it of list) { if (cl.length && it.s >= end) { clusters.push(cl); cl = []; end = -Infinity; } cl.push(it); end = Math.max(end, vis(it)); }
       if (cl.length) clusters.push(cl);
-      for (const c of clusters) { const lanes = []; for (const it of c) { let l = lanes.findIndex(x => x <= it.s); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = it.e; it.lane = l; } for (const it of c) it.n = lanes.length; }
+      for (const c of clusters) { const lanes = []; for (const it of c) { let l = lanes.findIndex(x => x <= it.s); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = vis(it); it.lane = l; } for (const it of c) it.n = lanes.length; }
       h += `<div class="daycol${d < today ? ' past' : ''}" data-day="${d}" style="height:${24 * PXH}px;background-size:100% ${PXH}px">`;
       for (const it of list) {
         const top = (it.s - d * D) / 60 * PXH, hgt = Math.max(16, (Math.min(it.e, (d + 1) * D) - it.s) / 60 * PXH - 2), bad = it.unmet && it.unmet.length;
-        const cls = ['blk', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : '', target === it.key ? 'target' : ''].filter(Boolean).join(' ');
+        const cls = ['blk', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
         h += `<div class="${cls}" data-k="${esc(it.key)}" title="${esc(it.title)} \u00b7 ${hm(it.s)}\u2013${endLabel(it.s, it.e)}" style="top:${top}px;height:${hgt}px;left:calc(${it.lane * 100 / it.n}% + 2px);width:calc(${100 / it.n}% - 4px);background:${C.catOf(it.cat).color}">`
           + `<span class="cb${it.done ? ' on' : ''}" data-cb="1"></span><span class="tt">${esc(it.title)}${it.part ? ` \u00b7 ${it.part}` : ''}</span>${it.occ ? IC.repeatCard : ''}${it.kind === 'fixed' ? IC.lockCard : ''}${bad ? '<span class="warn" data-warn="1" title="Unmet constraints">!</span>' : ''}<span class="rz" data-rz="1"></span></div>`;
       }
@@ -89,37 +91,51 @@
   // ---------- form in a popup ----------
   function openForm(mode, it, values) {
     A().closeAll();
-    const ov = $('#cx-ov'); ov.hidden = false; ov.onclick = null;
-    const close = () => { ov.hidden = true; ov.innerHTML = ''; };
+    const ov = $('#cx-ov'); ov.hidden = false; ov.onclick = null; ov.classList.toggle('light', !!ghost);
+    const close = () => { ov.hidden = true; ov.innerHTML = ''; ov.classList.remove('light'); clearGhost(); };
     C.form.mount(ov, {
       mode, occ: it && it.occ ? it.occ : null, values: it ? A().valuesOf(it) : values, onCancel: close,
       onSave: (data, scope) => { close(); if (it && it.occ) A().editOcc(it, data, scope); else A().commitForm(data, it ? it.ref : null); },
     });
   }
 
-  // ---------- move / resize by clicking the grid ----------
-  function startPick(type, it) {
-    A().closeAll(); pick = { type, it }; target = it.key; render(); $('#cx-root').classList.add('picking');
-    C.ui.toast(`${type === 'move' ? `Click where \u201c${esc(it.title)}\u201d should start` : `Click where \u201c${esc(it.title)}\u201d should end`} <span data-cancelmode="1">Cancel</span>`, 0);
-  }
-  function cancelPick() { pick = null; target = null; $('#cx-root').classList.remove('picking'); C.ui.hideToast(); render(); }
-  function pickAt(col, clientY) {
-    const r = col.getBoundingClientRect(), d = +col.dataset.day, t = d * D + Math.round((clientY - r.top) / PXH * 60 / 15) * 15;
-    const { type, it } = pick; cancelPick();
-    if (type === 'move') { const len = it.e - it.s, s = Math.max(d * D, Math.min((d + 1) * D - len, t)); A().onDrop({ it, s, e: s + len, resize: false }); }
-    else { if (d !== dayOf(it.s) || t < it.s + 15) { C.ui.toast('Pick a later time on the same day'); return; } A().onDrop({ it, s: it.s, e: Math.min(t, (d + 1) * D), resize: true }); }
+  // ---------- create by clicking or dragging over empty time (placeholder shows the range, as in Google Calendar) ----------
+  const clearGhost = () => { if (ghost) { ghost.remove(); ghost = null; } };
+  const timeAt = (col, y, fn = Math.round) => +col.dataset.day * D + fn((y - col.getBoundingClientRect().top) / PXH * 4) * 15;
+  function ghostAt(col, s, e) {
+    if (!ghost) { ghost = document.createElement('div'); ghost.className = 'blk ghost'; }
+    if (ghost.parentElement !== col) col.appendChild(ghost);
+    const d = +col.dataset.day;
+    Object.assign(ghost.style, { top: ((s - d * D) / 60 * PXH) + 'px', height: Math.max(16, (e - s) / 60 * PXH - 2) + 'px', left: '2px', width: 'calc(100% - 4px)' });
+    ghost.innerHTML = `<span class="tt">(No title)<span class="gt">${hm(s)} \u2013 ${endLabel(s, e)}</span></span>`;
   }
 
   // ---------- drag and drop / resize ----------
   const showDl = (e, text) => { const dl = $('#cx-dlabel', root), cr = $('#cx-cal', root).getBoundingClientRect(); dl.textContent = text; dl.style.display = 'block'; dl.style.left = (e.clientX - cr.left + 14) + 'px'; dl.style.top = (e.clientY - cr.top - 28) + 'px'; };
   function onPointerDown(e) {
-    const blk = e.target.closest('.blk'); if (!blk || e.button !== 0 || pick || e.target.closest('[data-cb],[data-warn]')) return;
+    const blk = e.target.closest('.blk');
+    if (!blk) {
+      const col = e.target.closest('.daycol');
+      if (!col || e.button !== 0 || !pop().hidden || !$('#cx-cmenu').hidden || !$('#cx-ov').hidden) return;
+      const d = +col.dataset.day, s0 = Math.max(d * D, Math.min((d + 1) * D - 15, timeAt(col, e.clientY, Math.floor)));
+      create = { col, d, s0, y0: e.clientY, started: false, s: s0, e: s0 + 15 };
+      e.preventDefault();
+      return;
+    }
+    if (e.button !== 0 || e.target.closest('[data-cb],[data-warn]')) return;
     const it = byKey(blk.dataset.k); if (!it || A().isTbd(it)) return;
     drag = { blk, it, resize: !!e.target.closest('[data-rz]'), x0: e.clientX, y0: e.clientY, grabDy: e.clientY - blk.getBoundingClientRect().top, started: false, s: it.s, e: it.e };
   }
   function onPointerMove(e) {
+    if (create) {
+      if (!create.started) { if (Math.abs(e.clientY - create.y0) < 5) return; create.started = true; $('#cx-root').classList.add('creating'); A().closeAll(); }
+      const { col, d, s0 } = create, t = Math.max(d * D, Math.min((d + 1) * D, timeAt(col, e.clientY)));
+      create.s = Math.min(s0, t); create.e = t > s0 ? Math.max(s0 + 15, t) : s0 + 15;
+      ghostAt(col, create.s, create.e);
+      return;
+    }
     if (!drag) return;
-    if (!drag.started) { if (Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) < 5) return; drag.started = true; drag.blk.classList.add('dragging'); A().closeAll(); }
+    if (!drag.started) { if (Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) < 5) return; drag.started = true; drag.blk.classList.add('dragging'); $('#cx-root').classList.add(drag.resize ? 'resizing' : 'grabbing'); A().closeAll(); }
     const len = drag.it.e - drag.it.s;
     if (drag.resize) {
       const col = drag.blk.parentElement, cr = col.getBoundingClientRect(), d = +col.dataset.day;
@@ -139,7 +155,16 @@
     }
   }
   function onPointerUp() {
-    if (!drag) return; const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none';
+    if (create) {
+      const c = create; create = null; $('#cx-root').classList.remove('creating');
+      // a plain click takes the half hour under the cursor
+      if (!c.started) { const s = Math.min((c.d + 1) * D - 30, c.d * D + Math.floor((c.s0 - c.d * D) / 30) * 30); c.s = s; c.e = s + 30; }
+      lastDragEnd = Date.now();
+      ghostAt(c.col, c.s, c.e);
+      openForm('new', null, { fixed: true, start: toLocal(c.s), dur: fmtDur(c.e - c.s) });
+      return;
+    }
+    if (!drag) return; const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none'; $('#cx-root').classList.remove('grabbing', 'resizing');
     if (!dd.started) return;
     lastDragEnd = Date.now(); dd.blk.classList.remove('dragging');
     if (dd.s === dd.it.s && dd.e === dd.it.e) { render(); return; }
@@ -150,9 +175,7 @@
   function onClick(e) {
     if (Date.now() - lastDragEnd < 350) return;
     if (e.target.closest('#cx-ov') || e.target.closest('#cx-cmenu')) return;
-    if (e.target.closest('[data-cancelmode]')) { cancelPick(); return; }
     const sh = e.target.closest('#cx-toast [data-show]'); if (sh) { week = +sh.dataset.show; C.ui.hideToast(); render(); return; }
-    if (pick) { const col = e.target.closest('.daycol'); if (col) pickAt(col, e.clientY); return; }
     if (e.target.closest('#cx-pop [data-close]')) { pop().hidden = true; return; }
     const cb = e.target.closest('#cx-grid [data-cb]'); if (cb) { A().toggleDone(cb.closest('.blk').dataset.k); return; }
     const acts = e.target.closest('#cx-pop [data-acts]'); if (acts) { const r = acts.getBoundingClientRect(); A().openMenu(acts.dataset.acts, r.left, r.bottom + 4, true); return; }
@@ -160,16 +183,13 @@
     const warn = e.target.closest('#cx-grid [data-warn]'); if (warn) { openDetails(warn.closest('.blk').dataset.k, warn.closest('.blk'), true); return; }
     const blk = e.target.closest('#cx-grid .blk'); if (blk) { openDetails(blk.dataset.k, blk); return; }
     if (e.target.closest('#cx-pop')) return;
-    const col = e.target.closest('#cx-grid .daycol');
-    if (col && pop().hidden && $('#cx-cmenu').hidden) { const r = col.getBoundingClientRect(), mins = Math.max(0, Math.min(D - 30, Math.floor((e.clientY - r.top) / PXH * 2) * 30)); openForm('new', null, { fixed: true, start: toLocal(+col.dataset.day * D + mins) }); return; }
     if (!e.target.closest('.hdr')) A().closeAll();
   }
-  function onKey(e) { if (e.key === 'Escape' && pick) cancelPick(); }
-  function onContext(e) { const blk = e.target.closest('.blk'); if (!blk) return; e.preventDefault(); if (pick) return; A().openMenu(blk.dataset.k, e.clientX, e.clientY); }
+  function onContext(e) { const blk = e.target.closest('.blk'); if (!blk) return; e.preventDefault(); A().openMenu(blk.dataset.k, e.clientX, e.clientY); }
 
   C.screen('calendar', {
     mount(el) {
-      root = el; week = 0; target = null; pick = null;
+      root = el; week = 0; drag = null; create = null; ghost = null;
       el.innerHTML = `<div class="bar">
           <span class="ib" id="w-prev" title="Previous week">\u2039</span><span class="ib" id="w-next" title="Next week">\u203a</span>
           <span class="b" id="w-today">Today</span><span class="wtitle" id="w-title"></span>
@@ -180,15 +200,14 @@
       Object.assign(C.view, {
         render: animated => (animated ? renderAnimated() : render()),
         adjust: adjustSchedule, openForm,
-        moveResize: startPick,
         showLink: first => { if (!first) return ''; const wk = Math.floor((dayOf(first[0]) - C.clock.weekStart) / 7); return wk !== week ? ` <span data-show="${wk}">Show</span>` : ''; },
         showWeekOf: day => { week = Math.floor((day - C.clock.weekStart) / 7); },
       });
       const quick = $('#cx-quick', el);
       C.markers.attach($('.quick .hl-wrap', el), true);
-      const create = () => { const t = quick.value; quick.value = ''; quick.dispatchEvent(new Event('input')); openForm('new', null, { title: t }); };
-      quick.addEventListener('keydown', e => { if (e.key === 'Enter' && quick.value.trim()) create(); });
-      $('#b-create', el).addEventListener('click', e => { e.stopPropagation(); create(); });
+      const quickCreate = () => { const t = quick.value; quick.value = ''; quick.dispatchEvent(new Event('input')); openForm('new', null, { title: t }); };
+      quick.addEventListener('keydown', e => { if (e.key === 'Enter' && quick.value.trim()) quickCreate(); });
+      $('#b-create', el).addEventListener('click', e => { e.stopPropagation(); quickCreate(); });
       $('#w-prev', el).addEventListener('click', () => { week--; A().closeAll(); render(); });
       $('#w-next', el).addEventListener('click', () => { week++; A().closeAll(); render(); });
       $('#w-today', el).addEventListener('click', () => { week = 0; A().closeAll(); render(); });
@@ -198,19 +217,17 @@
       window.addEventListener('pointermove', onPointerMove);
       window.addEventListener('pointerup', onPointerUp);
       $('#cx-app').addEventListener('click', onClick);
-      document.addEventListener('keydown', onKey);
       render();
       $('#cx-scroll', el).scrollTop = 7 * PXH;
     },
     unmount() {
-      if (pick) cancelPick();
+      clearGhost();
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
       $('#cx-app').removeEventListener('click', onClick);
-      document.removeEventListener('keydown', onKey);
       A().resetView();
       root = null;
     },
-    refresh() { if (!drag && !pick) render(); },
+    refresh() { if (!drag && !create && !ghost) render(); },
   });
 })(window.Chrona = window.Chrona || {});

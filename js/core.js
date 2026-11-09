@@ -55,7 +55,8 @@
     repeat: svg(REP),
     repeatCard: `<svg class="rp" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Repeats">${REP}</svg>`,
     flag: svg('<path d="M3.5 14V2.5M3.5 3h8l-1.6 3 1.6 3h-8"/>'),
-    deadline: svg('<path d="M4 2h8M4 14h8M5 2c0 3.3 6 3.7 6 6s-6 2.7-6 6M11 2c0 3.3-6 3.7-6 6"/>'),
+    // "→|" finish by, the mirror of not earlier than's "|→"
+    deadline: svg('<path d="M2.5 8h8.5M8 5l3 3-3 3M13.5 2.5v11"/>'),
     net: svg('<path d="M2.5 2.5v11M5.5 8h8M10.5 5l3 3-3 3"/>'),
     cal: svg('<rect x="2.3" y="3.2" width="11.4" height="10.3" rx="1.6"/><path d="M2.3 6.5h11.4M5.5 2v2.4M10.5 2v2.4"/>'),
     close: svg('<path d="M4 4l8 8M12 4l-8 8"/>', 16),

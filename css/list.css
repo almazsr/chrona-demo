@@ -86,9 +86,9 @@
 @keyframes cxrow { 0% { background:#e3f1fd; } 100% { background:#fff; } }
 @keyframes cxrowin { from { opacity:0; transform:translateY(-4px); background:#e3f1fd; } to { opacity:1; transform:none; } }
 .cx .empty { color:#a3adba; padding:9px 8px; font-size:12px; }
-.cx .nowl { position:relative; border-top:2px solid #e5484d; margin-top:-1px; z-index:1; }
-.cx .nowl:before { content:""; position:absolute; left:-4px; top:-6px; width:10px; height:10px; border-radius:50%; background:#e5484d; }
-.cx .nowl span { position:absolute; left:12px; top:-9px; background:#e5484d; color:#fff; font-size:10px; font-weight:700; border-radius:4px; padding:1px 5px; line-height:12px; }
+.cx .nowl { position:relative; border-top:2px solid #2b7de9; margin-top:-1px; z-index:1; }
+.cx .nowl:before { content:""; position:absolute; left:-4px; top:-6px; width:10px; height:10px; border-radius:50%; background:#2b7de9; }
+.cx .nowl span { position:absolute; left:12px; top:-9px; background:#2b7de9; color:#fff; font-size:10px; font-weight:700; border-radius:4px; padding:1px 5px; line-height:12px; }
 .cx .addrow { display:inline-flex; align-items:center; gap:8px; padding:12px 8px; color:#5b6878; cursor:pointer; margin-top:8px; border-radius:8px; }
 .cx .addrow .pl { width:18px; height:18px; border-radius:6px; background:#f1f4f8; color:#3b4656; display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
 .cx .addrow:hover { color:#1d6fb8; } .cx .addrow:hover .pl { background:#4a9ee8; color:#fff; }

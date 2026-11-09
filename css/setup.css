@@ -155,3 +155,4 @@
 .cx .sc-sw span { width:24px; height:24px; border-radius:50%; cursor:pointer; border:1px solid rgba(0,0,0,.1); box-sizing:border-box; position:relative; }
 .cx .sc-sw span.sel { box-shadow:0 0 0 2px #fff, 0 0 0 4px #1d2633; }
 .cx .sc-sw span.used:after { content:""; position:absolute; right:-2px; bottom:-2px; width:8px; height:8px; border-radius:50%; background:#fff; border:1px solid #cfd8e3; }
+.cx .su-pencil { display:inline-flex; vertical-align:-1px; color:#5b6878; }
