@@ -54,3 +54,9 @@
 .cx .overlay.light { background:rgba(15,25,40,.08); }
 .cx .blk.narrow.short { flex-wrap:nowrap; }
 .cx .blk.narrow.short .rp, .cx .blk.narrow.short .lk { display:none; }
+.cx .blk.tiny { padding:0 4px; font-size:9.5px; line-height:1; align-items:center; gap:3px; flex-wrap:nowrap; }
+.cx .blk.tiny .cb { width:8px; height:8px; margin-top:0; border-width:1px; }
+.cx .blk.tiny .cb.on:after { width:4px; height:2px; border-width:0 0 1.5px 1.5px; }
+.cx .blk.tiny .tt { order:0; flex-basis:auto; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cx .blk.tiny .rp, .cx .blk.tiny .lk, .cx .blk.tiny .warn { display:none; }
+.cx .blk.tiny .rz { height:4px; }

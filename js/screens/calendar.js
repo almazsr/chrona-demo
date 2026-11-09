@@ -2,10 +2,8 @@
   'use strict';
   const { $, $$, esc, D, hm, wd, p2, dayOf, dateOf, fmtWhen, fmtDur, endLabel, range, prLabel, toLocal } = C;
   const IC = C.icons, S = C.store.state, A = () => C.actions;
-  const PXH = 44, MIN_VIS = Math.ceil(16 / PXH * 60);
+  const PXH = 44, MIN_H = 16;
   let root = null, week = 0, drag = null, create = null, ghost = null, lastDragEnd = 0;
-  // a short block is drawn taller than its duration; lay cards out by what is drawn so they never cover each other
-  const vis = it => Math.max(it.e, it.s + MIN_VIS);
   const weekStart = () => C.clock.weekStart + week * 7;
   const byKey = k => C.solver.items().find(it => it.key === k);
   const pop = () => $('#cx-pop');
@@ -22,13 +20,16 @@
     for (let i = 0; i < 7; i++) {
       const d = d0 + i, list = all.filter(it => dayOf(it.s) === d).sort((x, y2) => x.s - y2.s || y2.e - x.e);
       const clusters = []; let cl = [], end = -Infinity;
-      for (const it of list) { if (cl.length && it.s >= end) { clusters.push(cl); cl = []; end = -Infinity; } cl.push(it); end = Math.max(end, vis(it)); }
+      for (const it of list) { if (cl.length && it.s >= end) { clusters.push(cl); cl = []; end = -Infinity; } cl.push(it); end = Math.max(end, it.e); }
       if (cl.length) clusters.push(cl);
-      for (const c of clusters) { const lanes = []; for (const it of c) { let l = lanes.findIndex(x => x <= it.s); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = vis(it); it.lane = l; } for (const it of c) it.n = lanes.length; }
+      for (const c of clusters) { const lanes = []; for (const it of c) { let l = lanes.findIndex(x => x <= it.s); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = it.e; it.lane = l; } for (const it of c) it.n = lanes.length; }
       h += `<div class="daycol${d < today ? ' past' : ''}" data-day="${d}" style="height:${24 * PXH}px;background-size:100% ${PXH}px">`;
       for (const it of list) {
-        const top = (it.s - d * D) / 60 * PXH, hgt = Math.max(16, (Math.min(it.e, (d + 1) * D) - it.s) / 60 * PXH - 2), bad = it.unmet && it.unmet.length;
-        const cls = ['blk', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
+        // a short card grows to a readable height only if nothing starts right after it; otherwise it stays compact
+        const next = list.reduce((m, o) => (o !== it && o.s >= it.e ? Math.min(m, o.s) : m), Infinity);
+        const real = (Math.min(it.e, (d + 1) * D) - it.s) / 60 * PXH - 2, room = (Math.min(next, (d + 1) * D) - it.s) / 60 * PXH - 2;
+        const top = (it.s - d * D) / 60 * PXH, hgt = Math.max(real, Math.min(MIN_H, room)), bad = it.unmet && it.unmet.length;
+        const cls = ['blk', hgt < 15 ? 'tiny' : '', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
         h += `<div class="${cls}" data-k="${esc(it.key)}" title="${esc(it.title)} \u00b7 ${hm(it.s)}\u2013${endLabel(it.s, it.e)}" style="top:${top}px;height:${hgt}px;left:calc(${it.lane * 100 / it.n}% + 2px);width:calc(${100 / it.n}% - 4px);background:${C.catOf(it.cat).color}">`
           + `<span class="cb${it.done ? ' on' : ''}" data-cb="1"></span><span class="tt">${esc(it.title)}${it.part ? ` \u00b7 ${it.part}` : ''}</span>${it.occ ? IC.repeatCard : ''}${it.kind === 'fixed' ? IC.lockCard : ''}${bad ? '<span class="warn" data-warn="1" title="Unmet constraints">!</span>' : ''}<span class="rz" data-rz="1"></span></div>`;
       }
