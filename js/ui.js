@@ -18,6 +18,8 @@
       const cr = (container || app()).getBoundingClientRect();
       el.hidden = false;
       let left = x - cr.left, top = y - cr.top;
+      if (left < 6) left = 6;
+      if (top < 6) top = 6;
       if (left + el.offsetWidth > cr.width - 6) left = Math.max(6, cr.width - el.offsetWidth - 6);
       if (top + el.offsetHeight > cr.height - 6) top = Math.max(6, cr.height - el.offsetHeight - 6);
       el.style.left = left + 'px'; el.style.top = top + 'px';

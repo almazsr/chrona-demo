@@ -1,0 +1,97 @@
+/* Narrow layout for the same screens. Loaded last so it can be removed on its own.
+   Desktop rules above 800px stay in the other stylesheets. */
+
+.cx { min-width: 0; }
+
+@media (max-width: 800px) {
+  .cx .hdr { flex-wrap: nowrap; gap: 8px; padding: 8px 10px; }
+  .cx .logo-name { display: none; }
+  .cx .nav { flex-wrap: nowrap; gap: 2px; min-width: 0; }
+  .cx .nav a { padding: 6px 8px; }
+  .cx #nav-settings { display: none; }
+  .cx .avi.set { display: block; }
+  .cx .toast { white-space: normal; max-width: calc(100% - 24px); }
+  .cx .pop { max-width: calc(100% - 12px); max-height: calc(100% - 12px); overflow: auto; }
+  .cx .cmenu { max-width: calc(100% - 12px); }
+  .cx .sub, .cx .sub.left { left: 0; right: auto; top: calc(100% + 4px); width: 100%; }
+  .cx .ci:not(.dis):hover > .sub { display: none; }
+  .cx .ci.open > .sub,
+  .cx .ci.open:hover > .sub { display: block; }
+  .cx .overlay { overflow: auto; align-items: flex-start; padding: 12px 8px 24px; }
+  .cx .modal,
+  .cx .sc-pop,
+  .cx .tbf {
+    width: auto;
+    min-width: 0;
+    max-width: calc(100% - 8px);
+  }
+  .cx .frow { flex-wrap: wrap; }
+  .cx .fpop,
+  .cx .fpop.wide { max-width: calc(100vw - 16px); }
+  .cx .dfwrap { flex-direction: column; }
+  .cx .dfmain { width: auto; max-width: 100%; }
+  .cx .dfquick { width: auto; border-left: 0; border-top: 1px solid #eef1f5; padding: 8px 0 0; }
+  .cx input,
+  .cx select,
+  .cx textarea { font-size: 16px; }
+
+  .cx .scr-signin .si { grid-template-columns: 1fr; }
+  .cx .scr-signin .si-left { padding: 28px 20px; }
+  .cx .scr-signin .si-right { min-height: 180px; border-left: 0; border-top: 1px solid #e3e8ef; }
+
+  .cx .scr-setup .su-hdr { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
+  .cx .scr-setup .su-stepper { flex: 1 1 180px; }
+  .cx .scr-setup .su-split { grid-template-columns: 1fr; overflow: auto; }
+  .cx .scr-setup .su-left { min-height: 240px; border-right: 0; border-bottom: 1px solid #e3e8ef; }
+  .cx .scr-setup .su-pvt { flex-wrap: wrap; }
+  .cx .scr-setup .su-pvt > span:last-child { white-space: normal; }
+  .cx .sc-chip.saved .sc-edit { display: flex; position: static; transform: none; }
+
+  .cx .bar { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
+  .cx .wtitle { min-width: 0; }
+  .cx .quick { flex: 1 1 160px; }
+
+  .cx .lv { position: relative; }
+  .cx .lbar h3 { display: none; }
+  .cx .lside { display: inline-flex; }
+  .cx .lside::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background: #3b4656;
+    -webkit-mask: url("../img/filter.png") center / contain no-repeat;
+    mask: url("../img/filter.png") center / contain no-repeat;
+  }
+  .cx .lside.p { background: #eaf4fd; border-color: #8ec5f5; }
+  .cx .lside.p::before { background: #1d6fb8; }
+  .cx .side {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-height: none;
+    z-index: 6;
+    border: 0;
+    padding: 12px 12px 28px;
+  }
+  .cx .lv.side-open .side { display: block; }
+  .cx .side-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 4px 10px; }
+  .cx .side-title { font-weight: 700; font-size: 16px; }
+  .cx .lbar { align-items: center; }
+  .cx .lbar #l-info { white-space: normal; }
+  .cx .lrow .rbs { opacity: 1; pointer-events: auto; }
+
+  .cx .rvscroll { padding: 12px 12px 70px; }
+  .cx .rcard { padding: 14px 12px; }
+
+  .cx .scr-settings .st { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .cx .scr-settings .st-side { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 10px; border-right: 0; border-bottom: 1px solid #e3e8ef; }
+  .cx .scr-settings .st-t { padding: 0 6px 0 0; }
+  .cx .scr-settings .st-side a { padding: 6px 8px; }
+  .cx .scr-settings .st-main { padding: 12px 12px 48px; }
+  .cx .scr-settings .st-ch,
+  .cx .scr-settings .st-set { flex-wrap: wrap; align-items: flex-start; }
+  .cx .scr-settings .st-row { grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1.2fr) 24px; }
+  .cx .scr-settings .st-row.ts { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto 24px; }
+  .cx .scr-settings .st-sel { min-width: 0; max-width: 100%; }
+}

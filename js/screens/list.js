@@ -78,6 +78,8 @@
     const f = timef()[filters.time];
     $('#l-sub').textContent = f.a === f.b ? `${f.label} · ${fmtDay(f.a)}` : `${f.label} · ${fmtDay(f.a).slice(0, 5)} – ${fmtDay(f.b)}`;
     $('#l-info').innerHTML = `${rows.length} time block${rows.length === 1 ? '' : 's'}${hidden ? ` · ${hidden} hidden by filters · <span data-reset="1">Reset filters</span>` : ''}`;
+    const sideBtn = $('#cx-lside');
+    if (sideBtn) sideBtn.classList.toggle('p', othersActive() || filters.time !== '2w' || groupBy !== 'time');
     rowRefs = new Map(all.map(it => [it.key, it.ref]));
     let h = '', editShown = false;
     const groups = groupsOf(rows);
@@ -158,7 +160,7 @@
   // ---------- sidebar: group by + filters ----------
   function renderSide() {
     const all = C.solver.items(), timed = all.filter(inTime), d = defFilters();
-    let h = '<div class="sh">Group by</div>' + GROUPS.map(([k, label, icon]) => `<div class="gopt${groupBy === k ? ' on' : ''}" data-gb="${k}"><span class="ic">${icon}</span>${label}</div>`).join('');
+    let h = '<div class="side-bar"><span class="side-title">Group & filter</span><span class="b p" data-side-close="1">Done</span></div><div class="sh">Group by</div>' + GROUPS.map(([k, label, icon]) => `<div class="gopt${groupBy === k ? ' on' : ''}" data-gb="${k}"><span class="ic">${icon}</span>${label}</div>`).join('');
     const anyActive = filters.time !== d.time || othersActive();
     h += `<div class="sdiv"></div><div class="sh">Filter<span class="rst" data-reset="1"${anyActive ? '' : ' hidden'}>Reset</span></div>`;
     const sec = (k, label, summary, act, body) => `<div class="fsec${openSec.has(k) ? ' open' : ''}"><div class="fhead" data-sec="${k}"><span class="car">▸</span><span class="fl">${label}</span><span class="fv${act ? ' act' : ''}">${esc(summary)}</span></div><div class="fbody">${body}</div></div>`;
@@ -176,6 +178,7 @@
   }
   function onSideClick(e) {
     e.stopPropagation(); C.actions.closeAll();
+    if (e.target.closest('[data-side-close]')) { $('#cx-lv').classList.remove('side-open'); return; }
     const gb = e.target.closest('[data-gb]'); if (gb) { groupBy = gb.dataset.gb; render(); return; }
     if (e.target.closest('[data-reset]')) { filters = defFilters(); render(); return; }
     const sh = e.target.closest('[data-sec]'); if (sh) { const k = sh.dataset.sec; openSec.has(k) ? openSec.delete(k) : openSec.add(k); renderSide(); return; }
@@ -210,6 +213,7 @@
     if (e.target.closest('#cx-toast [data-show]')) { revealRef(showRef); return; }
     if (e.target.closest('#cx-toast [data-reveal]')) { revealRef(missingRef); return; }
     if (!root.contains(e.target) && !e.target.closest('#cx-pop')) return;
+    if (e.target.closest('[data-side]')) { $('#cx-lv').classList.toggle('side-open'); C.actions.closeAll(); return; }
     if (e.target.closest('[data-reset]')) { filters = defFilters(); render(); return; }
     if (e.target.closest('#cx-pop [data-close]')) { closePop(); return; }
     const cb = e.target.closest('.lrow [data-cb]'); if (cb) { C.actions.toggleDone(cb.closest('.lrow').dataset.k); return; }
@@ -230,8 +234,8 @@
   C.screen('list', {
     mount(el) {
       root = el; form = null; fhEl = null;
-      el.innerHTML = `<div class="lv"><aside class="side" id="cx-side"></aside><div class="lmain" id="cx-lmain">
-        <div class="lbar"><h3>List</h3><span class="muted" id="l-sub"></span><span class="sp"></span><span class="muted" id="l-info"></span></div>
+      el.innerHTML = `<div class="lv" id="cx-lv"><aside class="side" id="cx-side"></aside><div class="lmain" id="cx-lmain">
+        <div class="lbar"><span class="ib lside" id="cx-lside" data-side="1" title="Filters" aria-label="Filters"></span><h3>List</h3><span class="muted" id="l-sub"></span><span class="sp"></span><span class="muted" id="l-info"></span></div>
         <div class="progress" id="cx-progress"></div>
         <div class="lscroll" id="cx-scroll"><div id="cx-list"></div></div></div></div>`;
       Object.assign(C.view, {

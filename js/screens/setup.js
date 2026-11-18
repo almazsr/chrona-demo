@@ -235,7 +235,7 @@
       const s = S();
       el.innerHTML = `<div class="su">
         <div class="su-hdr">
-          <div class="logo"><span class="mark"></span>Chrona</div>
+          <div class="logo"><span class="mark"></span><span class="logo-name">Chrona</span></div>
           <div class="su-stepper"></div>
           <div class="avwrap"><span class="avatar" data-avatar="1" title="Account">${C.esc((s.email || 'Y')[0].toUpperCase())}</span>
             <div class="avmenu" hidden><div class="avmail">${C.esc(s.email || 'you@example.com')}<br>Signed in with ${C.esc(s.provider || 'Google')}</div><div class="avi" data-av="reset">Reset demo</div><div class="avi dng" data-av="signout">Sign out</div></div></div>

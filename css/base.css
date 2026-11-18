@@ -17,6 +17,8 @@ html, body { margin:0; height:100%; background:#f4f6f9; }
 .cx .avmenu[hidden] { display:none; }
 .cx .avmail { color:#8a96a6; font-size:11.5px; line-height:1.5; padding:6px 9px 8px; border-bottom:1px solid #eef1f5; margin-bottom:4px; }
 .cx .avi { padding:7px 9px; border-radius:7px; cursor:pointer; }
+.cx .avi.set { display:none; }
+.cx .avi.on { background:#eaf4fd; color:#1d4f7a; font-weight:600; }
 .cx .avi:hover { background:#f1f4f8; }
 .cx .avi.dng { color:#c0392b; }
 .cx #cx-screen { flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
