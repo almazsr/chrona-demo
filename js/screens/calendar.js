@@ -29,7 +29,7 @@
         const next = list.reduce((m, o) => (o !== it && o.s >= it.e ? Math.min(m, o.s) : m), Infinity);
         const real = (Math.min(it.e, (d + 1) * D) - it.s) / 60 * PXH - 2, room = (Math.min(next, (d + 1) * D) - it.s) / 60 * PXH - 2;
         const top = (it.s - d * D) / 60 * PXH, hgt = Math.max(real, Math.min(MIN_H, room)), bad = it.unmet && it.unmet.length;
-        const cls = ['blk', hgt < 15 ? 'tiny' : '', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
+        const cls = ['blk', hgt < 15 ? 'tiny' : '', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', it.kind === 'fixed' ? 'fixed' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
         h += `<div class="${cls}" data-k="${esc(it.key)}" title="${esc(it.title)} \u00b7 ${hm(it.s)}\u2013${endLabel(it.s, it.e)}" style="top:${top}px;height:${hgt}px;left:calc(${it.lane * 100 / it.n}% + 2px);width:calc(${100 / it.n}% - 4px);background:${C.catOf(it.cat).color}">`
           + `<span class="cb${it.done ? ' on' : ''}" data-cb="1"></span><span class="tt">${esc(it.title)}${it.part ? ` \u00b7 ${it.part}` : ''}</span>${it.occ ? IC.repeatCard : ''}${it.kind === 'fixed' ? IC.lockCard : ''}${bad ? '<span class="warn" data-warn="1" title="Unmet constraints">!</span>' : ''}<span class="rz" data-rz="1"></span></div>`;
       }
@@ -114,28 +114,29 @@
   // ---------- drag and drop / resize ----------
   const showDl = (e, text) => { const dl = $('#cx-dlabel', root), cr = $('#cx-cal', root).getBoundingClientRect(); dl.textContent = text; dl.style.display = 'block'; dl.style.left = (e.clientX - cr.left + 14) + 'px'; dl.style.top = (e.clientY - cr.top - 28) + 'px'; };
   function onPointerDown(e) {
+    if (e.pointerType === 'touch' || create || drag) return;
     const blk = e.target.closest('.blk');
     if (!blk) {
       const col = e.target.closest('.daycol');
       if (!col || e.button !== 0 || !pop().hidden || !$('#cx-cmenu').hidden || !$('#cx-ov').hidden) return;
       const d = +col.dataset.day, s0 = Math.max(d * D, Math.min((d + 1) * D - 15, timeAt(col, e.clientY, Math.floor)));
-      create = { col, d, s0, y0: e.clientY, started: false, s: s0, e: s0 + 15 };
+      create = { pointerId: e.pointerId, col, d, s0, y0: e.clientY, started: false, s: s0, e: s0 + 15 };
       e.preventDefault();
       return;
     }
     if (e.button !== 0 || e.target.closest('[data-cb],[data-warn]')) return;
     const it = byKey(blk.dataset.k); if (!it || A().isTbd(it)) return;
-    drag = { blk, it, resize: !!e.target.closest('[data-rz]'), x0: e.clientX, y0: e.clientY, grabDy: e.clientY - blk.getBoundingClientRect().top, started: false, s: it.s, e: it.e };
+    drag = { pointerId: e.pointerId, blk, it, resize: !!e.target.closest('[data-rz]'), x0: e.clientX, y0: e.clientY, grabDy: e.clientY - blk.getBoundingClientRect().top, started: false, s: it.s, e: it.e };
   }
   function onPointerMove(e) {
-    if (create) {
+    if (create?.pointerId === e.pointerId) {
       if (!create.started) { if (Math.abs(e.clientY - create.y0) < 5) return; create.started = true; $('#cx-root').classList.add('creating'); A().closeAll(); }
       const { col, d, s0 } = create, t = Math.max(d * D, Math.min((d + 1) * D, timeAt(col, e.clientY)));
       create.s = Math.min(s0, t); create.e = t > s0 ? Math.max(s0 + 15, t) : s0 + 15;
       ghostAt(col, create.s, create.e);
       return;
     }
-    if (!drag) return;
+    if (drag?.pointerId !== e.pointerId) return;
     if (!drag.started) { if (Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) < 5) return; drag.started = true; drag.blk.classList.add('dragging'); $('#cx-root').classList.add(drag.resize ? 'resizing' : 'grabbing'); A().closeAll(); }
     const len = drag.it.e - drag.it.s;
     if (drag.resize) {
@@ -155,9 +156,11 @@
       showDl(e, range(drag.s, drag.e));
     }
   }
-  function onPointerUp() {
-    if (create) {
+  function onPointerEnd(e) {
+    const cancelled = e.type === 'pointercancel';
+    if (create?.pointerId === e.pointerId) {
       const c = create; create = null; $('#cx-root').classList.remove('creating');
+      if (cancelled) { clearGhost(); return; }
       // a plain click takes the half hour under the cursor
       if (!c.started) { const s = Math.min((c.d + 1) * D - 30, c.d * D + Math.floor((c.s0 - c.d * D) / 30) * 30); c.s = s; c.e = s + 30; }
       lastDragEnd = Date.now();
@@ -165,10 +168,11 @@
       openForm('new', null, { fixed: true, start: toLocal(c.s), dur: fmtDur(c.e - c.s) });
       return;
     }
-    if (!drag) return; const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none'; $('#cx-root').classList.remove('grabbing', 'resizing');
+    if (drag?.pointerId !== e.pointerId) return;
+    const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none'; $('#cx-root').classList.remove('grabbing', 'resizing');
     if (!dd.started) return;
     lastDragEnd = Date.now(); dd.blk.classList.remove('dragging');
-    if (dd.s === dd.it.s && dd.e === dd.it.e) { render(); return; }
+    if (cancelled || (dd.s === dd.it.s && dd.e === dd.it.e)) { render(); return; }
     A().onDrop(dd);
   }
 
@@ -216,15 +220,18 @@
       $('#cx-grid', el).addEventListener('contextmenu', onContext);
       $('#cx-scroll', el).addEventListener('scroll', () => { pop().hidden = true; A().closeMenu(); });
       window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointerup', onPointerEnd);
+      window.addEventListener('pointercancel', onPointerEnd);
       $('#cx-app').addEventListener('click', onClick);
       render();
       $('#cx-scroll', el).scrollTop = 7 * PXH;
     },
     unmount() {
       clearGhost();
+      $('#cx-root').classList.remove('creating', 'grabbing', 'resizing');
       window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointerup', onPointerEnd);
+      window.removeEventListener('pointercancel', onPointerEnd);
       $('#cx-app').removeEventListener('click', onClick);
       A().resetView();
       root = null;

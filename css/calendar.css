@@ -10,14 +10,14 @@
 .cx .heads b { display:block; font-size:16px; color:#1d2633; font-weight:600; }
 .cx .heads .today b { background:#4a9ee8; color:#fff; border-radius:50%; width:28px; height:28px; line-height:28px; margin:2px auto 0; }
 .cx .scroll { flex:1; overflow-y:auto; position:relative; }
-.cx .grid { display:grid; grid-template-columns:44px repeat(7,minmax(0,1fr)); position:relative; }
+.cx .grid { display:grid; grid-template-columns:44px repeat(7,minmax(0,1fr)); position:relative; touch-action:pan-y pinch-zoom; }
 .cx .hours { position:relative; }
 .cx .hours span { position:absolute; right:6px; font-size:10px; color:#a3adba; transform:translateY(-50%); }
 .cx .daycol { position:relative; border-left:1px solid #eef1f5; cursor:default; background-image:linear-gradient(to bottom,#f1f4f8 1px,transparent 1px); }
 .cx .daycol.past { background-color:#fafbfc; }
 .cx .now { position:absolute; left:-1px; right:0; border-top:2px solid #2b7de9; z-index:6; pointer-events:none; }
 .cx .now:before { content:""; position:absolute; left:-5px; top:-6px; width:10px; height:10px; border-radius:50%; background:#2b7de9; }
-.cx .blk { position:absolute; border-radius:6px; padding:3px 5px; font-size:11px; line-height:1.25; overflow:hidden; box-sizing:border-box; border-left:3px solid rgba(0,0,0,.25); color:#1d2633; cursor:pointer; z-index:3; box-shadow:0 1px 2px rgba(0,0,0,.06); display:flex; gap:4px; align-items:flex-start; user-select:none; touch-action:none; }
+.cx .blk { position:absolute; border-radius:6px; padding:3px 5px; font-size:11px; line-height:1.25; overflow:hidden; box-sizing:border-box; border-left:3px solid rgba(0,0,0,.25); color:#1d2633; cursor:pointer; z-index:3; box-shadow:0 1px 2px rgba(0,0,0,.06); display:flex; gap:4px; align-items:flex-start; user-select:none; }
 .cx .blk:hover { box-shadow:0 2px 8px rgba(0,0,0,.15); z-index:4; }
 .cx .blk .tt { font-weight:600; flex:1; min-width:0; overflow-wrap:break-word; hyphens:auto; }
 .cx .blk.narrow { flex-wrap:wrap; row-gap:2px; padding:3px 3px 3px 4px; font-size:10.5px; }

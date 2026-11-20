@@ -50,6 +50,7 @@
 .cx .ahead { margin-top:30px; }
 .cx .ahead h4 { margin:0 0 4px; font-size:14px; }
 .cx .ahead > p { margin:0 0 8px; color:#5b6878; line-height:1.5; }
+.cx .ahead .mobile-only { display:none; }
 .cx .arow { display:flex; align-items:center; gap:8px; padding:8px 6px; border-bottom:1px solid #f1f4f8; }
 .cx .arow .cdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .cx .arow .tt { font-weight:500; text-decoration:line-through; text-decoration-color:rgba(29,38,51,.4); }

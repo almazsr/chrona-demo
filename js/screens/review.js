@@ -7,6 +7,7 @@
   const prCell = p => PR_EMOJI[p] || (p === C.DEF_PR ? '' : `<span class="pn">${p}</span>`);
   const ICON_OK = '<svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
   let root = null, queue = [], cur = 0, prevSts = null, animateCard = true;
+  let swipe = null;
   const dd = () => $('#rv-dd');
   const relDay = d => { const n = C.clock.today - d; return n === 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`; };
   const postponeLabel = net => net == null ? 'to the nearest free time' : `to ${humanWhen(net)}`;
@@ -79,8 +80,10 @@
   function aheadHtml() {
     const now = C.clock.now, today = C.clock.today, ahead = C.solver.items().filter(it => it.done && it.s >= now).sort((a, b) => a.s - b.s);
     if (!ahead.length) return '';
-    return `<div class="ahead"><h4>Done ahead of time \u00b7 ${ahead.length}</h4><p>Marked done, but planned for later. Move them into free time before now to give their planned time back to the schedule.</p>`
-      + ahead.map(it => { const d = dayOf(it.s), cat = C.catOf(it.cat); return `<div class="arow" data-ak="${esc(it.key)}"><span class="cbx"></span><i class="cdot" style="background:${cat.color}" title="${esc(cat.name)}"></i><span class="tt">${esc(it.title)}</span><span class="du">(${fmtDur(it.e - it.s)})</span><span class="sp"></span><span class="wh">planned ${d === today ? 'today' : d === today + 1 ? 'tomorrow' : `${wd(d)} ${fmtDay(d).slice(0, 5)}`}, ${hm(it.s)}</span><span class="b" data-past="${esc(it.key)}">Move to past</span></div>`; }).join('')
+    return `<div class="ahead"><h4>Done ahead of time \u00b7 ${ahead.length}</h4>
+      <p class="desktop-only">Marked done, but planned for later. Move them into free time before now to give their planned time back to the schedule.</p>
+      <p class="mobile-only">Move these time blocks into free time before now to open up their original time slots.</p>`
+      + ahead.map(it => { const d = dayOf(it.s), cat = C.catOf(it.cat); return `<div class="arow" data-ak="${esc(it.key)}"><span class="cbx"></span><i class="cdot" style="background:${cat.color}" title="${esc(cat.name)}"></i><span class="tt">${esc(it.title)}</span><span class="du">(${fmtDur(it.e - it.s)})</span><span class="sp"></span><span class="wh"><span class="desktop-only">planned </span>${d === today ? 'today' : d === today + 1 ? 'tomorrow' : `${wd(d)} ${fmtDay(d).slice(0, 5)}`}, ${hm(it.s)}</span><span class="b" data-past="${esc(it.key)}">Move to past</span></div>`; }).join('')
       + '</div>';
   }
   function moveToPast(key) {
@@ -118,6 +121,21 @@
   function rvDone() { const q = queue[cur], it = A().byKey(q.key); if (!it) return; A().closeAll(); A().markDone(it); C.store.save(); render(); C.ui.toast(`Marked \u201c${esc(q.title)}\u201d as done`); }
   function rvUndone() { const q = queue[cur]; if (q.occ) { const x = occState(q); if (x) delete x.done; } else q.ref.done = false; C.store.save(); render(); C.ui.toast(`Marked \u201c${esc(q.title)}\u201d as not done`); }
   function nav(dir) { const n = cur + dir; if (n < 0 || n >= queue.length) return; cur = n; animateCard = true; A().closeAll(); render(); }
+
+  function startSwipe(e) {
+    if (C.mobileLayout.matches && e.isPrimary && e.pointerType === 'touch' && e.target.closest('.rcard')) {
+      swipe = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    }
+  }
+
+  function endSwipe(e) {
+    if (swipe?.id !== e.pointerId) return;
+    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+    swipe = null;
+    if (e.type === 'pointerup' && Math.abs(dx) >= 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      nav(dx < 0 ? 1 : -1);
+    }
+  }
 
   function onClick(e) {
     if (!root || e.target.closest('#cx-ov') || e.target.closest('#cx-cmenu') || e.target.closest('.hdr')) return;
@@ -164,7 +182,11 @@
       const menu = document.createElement('div'); menu.className = 'cmenu rdd'; menu.id = 'rv-dd'; menu.hidden = true; $('#cx-app').appendChild(menu);
       A().wireStaged(menu);
       Object.assign(C.view, { render: () => render(), adjust: adjustSchedule, closeDD, closePop: closeDD });
-      $('#cx-scroll', el).addEventListener('scroll', () => A().closeAll());
+      const scroll = $('#cx-scroll', el);
+      scroll.addEventListener('scroll', () => A().closeAll());
+      scroll.addEventListener('pointerdown', startSwipe);
+      scroll.addEventListener('pointerup', endSwipe);
+      scroll.addEventListener('pointercancel', endSwipe);
       $('#cx-app').addEventListener('click', onClick);
       document.addEventListener('keydown', onKey);
       render();
@@ -174,6 +196,7 @@
       document.removeEventListener('keydown', onKey);
       A().resetView();
       const m = dd(); if (m) m.remove();
+      swipe = null;
       root = null;
     },
     refresh() { render(); },
