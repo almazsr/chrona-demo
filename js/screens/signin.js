@@ -84,26 +84,26 @@
         task = (next + 1) % PREVIEW.length;
         last = column;
         column.busy = true;
-        const fall = Math.round(300 + 14 * Math.sqrt(top + height));
+        const fall = Math.round(150 + 7 * Math.sqrt(top + height));
         card.animate([{ transform: `translateY(${-(top + height + 4)}px)` }, { transform: 'translateY(0)' }], { duration: fall, easing: 'cubic-bezier(.55, 0, 1, .45)' });
         later(() => {
-          card.animate([{ transform: 'scaleY(.84)' }, { transform: 'scaleY(1.04)', offset: 0.6 }, { transform: 'scaleY(1)' }], { duration: 240, easing: 'ease-out' });
+          card.animate([{ transform: 'scaleY(.84)' }, { transform: 'scaleY(1.04)', offset: 0.6 }, { transform: 'scaleY(1)' }], { duration: 120, easing: 'ease-out' });
           column.busy = false;
           if (column.filled === ROWS) clear(column);
         }, fall);
       }
-      later(drop, 2000 + Math.random() * 3000);
+      later(drop, 1000 + Math.random() * 1500);
     }
 
     // a full column is done: cross its time blocks out in time order, then empty it
     function clear(column) {
       column.busy = true;
       const cards = [...column.el.children];
-      cards.forEach((card, i) => later(() => card.classList.add('si-done'), 400 + i * 220));
+      cards.forEach((card, i) => later(() => card.classList.add('si-done'), 200 + i * 110));
       later(() => {
-        cards.forEach(card => card.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(.92)' }], { duration: 350, easing: 'ease-in', fill: 'forwards' }));
-        later(() => { column.el.replaceChildren(); column.filled = 0; column.busy = false; }, 350);
-      }, 400 + cards.length * 220 + 600);
+        cards.forEach(card => card.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(.92)' }], { duration: 175, easing: 'ease-in', fill: 'forwards' }));
+        later(() => { column.el.replaceChildren(); column.filled = 0; column.busy = false; }, 175);
+      }, 200 + cards.length * 110 + 300);
     }
 
     function reset() {
@@ -116,7 +116,7 @@
       });
       task = 4;
       last = null;
-      if (C.mobileLayout.matches && !reducedMotion.matches) later(drop, 2000 + Math.random() * 3000);
+      if (C.mobileLayout.matches && !reducedMotion.matches) later(drop, 1000 + Math.random() * 1500);
     }
 
     C.mobileLayout.addEventListener('change', reset);

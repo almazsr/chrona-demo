@@ -7,7 +7,6 @@
   const prCell = p => PR_EMOJI[p] || (p === C.DEF_PR ? '' : `<span class="pn">${p}</span>`);
   const ICON_OK = '<svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
   let root = null, queue = [], cur = 0, prevSts = null, animateCard = true;
-  let swipe = null;
   const dd = () => $('#rv-dd');
   const relDay = d => { const n = C.clock.today - d; return n === 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`; };
   const postponeLabel = net => net == null ? 'to the nearest free time' : `to ${humanWhen(net)}`;
@@ -122,19 +121,14 @@
   function rvUndone() { const q = queue[cur]; if (q.occ) { const x = occState(q); if (x) delete x.done; } else q.ref.done = false; C.store.save(); render(); C.ui.toast(`Marked \u201c${esc(q.title)}\u201d as not done`); }
   function nav(dir) { const n = cur + dir; if (n < 0 || n >= queue.length) return; cur = n; animateCard = true; A().closeAll(); render(); }
 
-  function startSwipe(e) {
-    if (C.mobileLayout.matches && e.isPrimary && e.pointerType === 'touch' && e.target.closest('.rcard')) {
-      swipe = { id: e.pointerId, x: e.clientX, y: e.clientY };
-    }
-  }
-
-  function endSwipe(e) {
-    if (swipe?.id !== e.pointerId) return;
-    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
-    swipe = null;
-    if (e.type === 'pointerup' && Math.abs(dx) >= 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      nav(dx < 0 ? 1 : -1);
-    }
+  // mobile: like stories, a tap on the left third of the card goes back, anywhere else goes forward
+  function tapNav(e) {
+    const card = e.target.closest('.rcard');
+    if (!C.mobileLayout.matches || !card || e.target.closest('a, button, input, select, textarea, .b')) return false;
+    if (!dd().hidden || !$('#cx-cmenu').hidden || String(window.getSelection() || '')) { A().closeAll(); return true; }
+    const r = card.getBoundingClientRect();
+    nav(e.clientX < r.left + r.width / 3 ? -1 : 1);
+    return true;
   }
 
   function onClick(e) {
@@ -155,6 +149,7 @@
       return;
     }
     const mp = e.target.closest('[data-past]'); if (mp) { moveToPast(mp.dataset.past); return; }
+    if (tapNav(e)) return;
     A().closeAll();
   }
   function onKey(e) {
@@ -184,9 +179,6 @@
       Object.assign(C.view, { render: () => render(), adjust: adjustSchedule, closeDD, closePop: closeDD });
       const scroll = $('#cx-scroll', el);
       scroll.addEventListener('scroll', () => A().closeAll());
-      scroll.addEventListener('pointerdown', startSwipe);
-      scroll.addEventListener('pointerup', endSwipe);
-      scroll.addEventListener('pointercancel', endSwipe);
       $('#cx-app').addEventListener('click', onClick);
       document.addEventListener('keydown', onKey);
       render();
@@ -196,7 +188,6 @@
       document.removeEventListener('keydown', onKey);
       A().resetView();
       const m = dd(); if (m) m.remove();
-      swipe = null;
       root = null;
     },
     refresh() { render(); },

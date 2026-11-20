@@ -48,7 +48,7 @@
   }
   .cx .scr-signin .si-mobile-week .si-blk { padding: 4px; transform-origin: 50% 100%; }
   .cx .scr-signin .si-mobile-week .si-blk > * { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cx .scr-signin .si-mobile-week .si-blk span { text-decoration: line-through transparent; transition: text-decoration-color .2s; }
+  .cx .scr-signin .si-mobile-week .si-blk span { text-decoration: line-through transparent; transition: text-decoration-color .1s; }
   .cx .scr-signin .si-mobile-week .si-blk.si-done span { text-decoration-color: currentColor; }
 
   .cx .scr-setup .su-hdr { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
@@ -61,20 +61,13 @@
   .cx .bar { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
   .cx .wtitle { min-width: 0; }
   .cx .quick { flex: 1 1 160px; }
-  .cx .scr-calendar .blk .cb,
   .cx .scr-calendar .blk .lk,
   .cx .scr-calendar .blk .rp,
   .cx .scr-calendar .blk .warn { display: none; }
-  .cx .scr-calendar .blk:is(.fixed, .bad)::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 2px solid #49515e;
-    border-radius: inherit;
-    pointer-events: none;
-  }
-  .cx .scr-calendar .blk.bad { box-shadow: none; }
-  .cx .scr-calendar .blk.bad::after { border-color: #e5484d; }
+  .cx .scr-calendar .grid { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  /* outline is drawn on the border box, so it also covers the category stripe on the left */
+  .cx .scr-calendar .blk:is(.fixed, .bad) { outline: 1.5px solid #49515e; outline-offset: -1.5px; }
+  .cx .scr-calendar .blk.bad { outline-color: #e5484d; box-shadow: none; }
 
   .cx .lv { position: relative; }
   .cx .lbar h3 { display: none; }
@@ -107,7 +100,7 @@
   .cx .lrow .rbs { opacity: 1; pointer-events: auto; }
 
   .cx .rvscroll { padding: 12px 12px 70px; }
-  .cx .rcard { padding: 14px 12px; touch-action: pan-y pinch-zoom; }
+  .cx .rcard { padding: 14px 12px; -webkit-tap-highlight-color: transparent; }
   .cx .rnav, .cx .racts .kb, .cx .ahead .desktop-only { display: none; }
   .cx .ahead .mobile-only { display: block; }
 
