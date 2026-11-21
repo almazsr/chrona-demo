@@ -29,9 +29,9 @@
         const next = list.reduce((m, o) => (o !== it && o.s >= it.e ? Math.min(m, o.s) : m), Infinity);
         const real = (Math.min(it.e, (d + 1) * D) - it.s) / 60 * PXH - 2, room = (Math.min(next, (d + 1) * D) - it.s) / 60 * PXH - 2;
         const top = (it.s - d * D) / 60 * PXH, hgt = Math.max(real, Math.min(MIN_H, room)), bad = it.unmet && it.unmet.length;
-        const cls = ['blk', hgt < 15 ? 'tiny' : '', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
+        const cls = ['blk', hgt < 15 ? 'tiny' : '', it.n > 1 ? 'narrow' : '', it.e - it.s < 60 ? 'short' : '', it.e <= now ? 'past' : '', it.done ? 'done' : '', it.kind === 'fixed' ? 'fixed' : '', bad ? 'bad' : '', A().isTbd(it) ? 'tbd' : ''].filter(Boolean).join(' ');
         h += `<div class="${cls}" data-k="${esc(it.key)}" title="${esc(it.title)} \u00b7 ${hm(it.s)}\u2013${endLabel(it.s, it.e)}" style="top:${top}px;height:${hgt}px;left:calc(${it.lane * 100 / it.n}% + 2px);width:calc(${100 / it.n}% - 4px);background:${C.catOf(it.cat).color}">`
-          + `<span class="cb${it.done ? ' on' : ''}" data-cb="1"></span><span class="tt">${esc(it.title)}${it.part ? ` \u00b7 ${it.part}` : ''}</span>${it.occ ? IC.repeatCard : ''}${it.kind === 'fixed' ? IC.lockCard : ''}${bad ? '<span class="warn" data-warn="1" title="Unmet constraints">!</span>' : ''}<span class="rz" data-rz="1"></span></div>`;
+          + `<span class="tt">${esc(it.title)}${it.part ? ` \u00b7 ${it.part}` : ''}</span>${it.occ ? IC.repeatCard : ''}${it.kind === 'fixed' ? IC.lockCard : ''}${bad ? '<span class="warn" data-warn="1" title="Unmet constraints">!</span>' : ''}<span class="rz" data-rz="1"></span></div>`;
       }
       if (d === today) h += `<div class="now" style="top:${(now - d * D) / 60 * PXH}px"></div>`;
       h += '</div>';
@@ -73,13 +73,12 @@
     } else {
       const cons = constraintsOf(it), sr = it.occ ? C.series.find(it.occ.sid) : null;
       p.innerHTML = `<span class="ib x" data-close="1" title="Close">\u2715</span>
-        <h6><i style="background:${cat.color}"></i>${esc(it.title)}</h6>
+        <h6${it.done ? ' class="done"' : ''}><span class="dcb${it.done ? ' on' : ''}" data-done="${esc(key)}" role="checkbox" aria-checked="${!!it.done}" title="${it.done ? 'Mark as not done' : 'Mark as done'}"></span><i style="background:${cat.color}"></i><span class="dt">${esc(it.title)}</span></h6>
         <div class="row"><span class="k">\u25cf</span>${esc(cat.name)} \u00b7 ${esc(prLabel(it.pr))}</div>
         <div class="row"><span class="k">${IC.clock}</span>${range(it.s, it.e)}${it.part ? ` \u00b7 part ${it.part.replace('/', ' of ')}${S.tasks.includes(t) ? ` (${fmtDur(t.dur)} left in total)` : ''}` : ''}</div>
         <div class="row"><span class="k">${fx ? IC.lock : IC.swap}</span>${fx ? `Fixed${cat.fixed ? ' (fixed category)' : ''}` : 'Flexible: Chrona may move it'}</div>
         ${cons ? `<div class="row"><span class="k">${IC.deadline}</span>${esc(cons)}</div>` : ''}
         ${sr ? `<div class="row"><span class="k">${IC.repeat}</span>${esc(C.series.ruleText(sr.rule, sr.from))} \u00b7 ${esc(C.series.endsText(sr.ends))}</div>` : ''}
-        <div class="row"><span class="k"><input type="checkbox" disabled ${it.done ? 'checked' : ''}></span>${it.done ? 'Done' : 'Not done'}</div>
         ${it.unmet && it.unmet.length ? `<div class="row" style="color:#b4232a"><span class="k">!</span>${esc(it.unmet[0])}</div>` : ''}
         <div class="acts"><span class="b" data-act="edit" data-k="${esc(key)}">Edit</span><span class="b danger" data-act="delete" data-k="${esc(key)}">Delete</span><span class="b" data-acts="${esc(key)}">Actions \u25be</span></div>`;
     }
@@ -114,28 +113,61 @@
   // ---------- drag and drop / resize ----------
   const showDl = (e, text) => { const dl = $('#cx-dlabel', root), cr = $('#cx-cal', root).getBoundingClientRect(); dl.textContent = text; dl.style.display = 'block'; dl.style.left = (e.clientX - cr.left + 14) + 'px'; dl.style.top = (e.clientY - cr.top - 28) + 'px'; };
   function onPointerDown(e) {
+    if (e.pointerType === 'touch') { startPress(e); return; }
+    if (create || drag) return;
     const blk = e.target.closest('.blk');
     if (!blk) {
       const col = e.target.closest('.daycol');
       if (!col || e.button !== 0 || !pop().hidden || !$('#cx-cmenu').hidden || !$('#cx-ov').hidden) return;
       const d = +col.dataset.day, s0 = Math.max(d * D, Math.min((d + 1) * D - 15, timeAt(col, e.clientY, Math.floor)));
-      create = { col, d, s0, y0: e.clientY, started: false, s: s0, e: s0 + 15 };
+      create = { pointerId: e.pointerId, col, d, s0, y0: e.clientY, started: false, s: s0, e: s0 + 15 };
       e.preventDefault();
       return;
     }
-    if (e.button !== 0 || e.target.closest('[data-cb],[data-warn]')) return;
+    if (e.button !== 0 || e.target.closest('[data-warn]')) return;
     const it = byKey(blk.dataset.k); if (!it || A().isTbd(it)) return;
-    drag = { blk, it, resize: !!e.target.closest('[data-rz]'), x0: e.clientX, y0: e.clientY, grabDy: e.clientY - blk.getBoundingClientRect().top, started: false, s: it.s, e: it.e };
+    drag = { pointerId: e.pointerId, blk, it, resize: !!e.target.closest('[data-rz]'), x0: e.clientX, y0: e.clientY, grabDy: e.clientY - blk.getBoundingClientRect().top, started: false, s: it.s, e: it.e };
   }
+  // touch: a vertical swipe scrolls; holding a finger on empty time creates a time block there,
+  // and dragging before release sets its length (like Google Calendar)
+  const PRESS_MS = 450, PRESS_SLOP = 8;
+  let press = null;
+  function startPress(e) {
+    cancelPress();
+    if (create || drag || !e.isPrimary || e.target.closest('.blk')) return;
+    const col = e.target.closest('.daycol');
+    if (!col || !pop().hidden || !$('#cx-cmenu').hidden || !$('#cx-ov').hidden) return;
+    press = { pointerId: e.pointerId, col, x0: e.clientX, y0: e.clientY, y: e.clientY, timer: setTimeout(activatePress, PRESS_MS) };
+  }
+  function cancelPress() { if (press) { clearTimeout(press.timer); press = null; } }
+  function activatePress() {
+    const { pointerId, col, y } = press; press = null;
+    const d = +col.dataset.day, at = Math.max(d * D, Math.min((d + 1) * D - 30, timeAt(col, y, Math.floor)));
+    // start on the half hour under the finger, 30 minutes long, like a click on desktop
+    const s0 = Math.min((d + 1) * D - 30, d * D + Math.floor((at - d * D) / 30) * 30);
+    create = { pointerId, col, d, s0, y0: y, started: true, touch: true, s: s0, e: s0 + 30 };
+    $('#cx-root').classList.add('creating'); A().closeAll();
+    ghostAt(col, create.s, create.e);
+    if (navigator.vibrate) navigator.vibrate(10);
+  }
+  // once a long press has started a time block, the finger drags it instead of scrolling
+  function onTouchMove(e) { if (create?.touch && e.cancelable) e.preventDefault(); }
+
   function onPointerMove(e) {
-    if (create) {
+    if (press?.pointerId === e.pointerId) {
+      press.y = e.clientY;
+      if (Math.abs(e.clientX - press.x0) > PRESS_SLOP || Math.abs(e.clientY - press.y0) > PRESS_SLOP) cancelPress();
+      return;
+    }
+    if (create?.pointerId === e.pointerId) {
       if (!create.started) { if (Math.abs(e.clientY - create.y0) < 5) return; create.started = true; $('#cx-root').classList.add('creating'); A().closeAll(); }
       const { col, d, s0 } = create, t = Math.max(d * D, Math.min((d + 1) * D, timeAt(col, e.clientY)));
+      if (create.touch && Math.abs(e.clientY - create.y0) < 5) return;
       create.s = Math.min(s0, t); create.e = t > s0 ? Math.max(s0 + 15, t) : s0 + 15;
       ghostAt(col, create.s, create.e);
       return;
     }
-    if (!drag) return;
+    if (drag?.pointerId !== e.pointerId) return;
     if (!drag.started) { if (Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) < 5) return; drag.started = true; drag.blk.classList.add('dragging'); $('#cx-root').classList.add(drag.resize ? 'resizing' : 'grabbing'); A().closeAll(); }
     const len = drag.it.e - drag.it.s;
     if (drag.resize) {
@@ -155,9 +187,12 @@
       showDl(e, range(drag.s, drag.e));
     }
   }
-  function onPointerUp() {
-    if (create) {
+  function onPointerEnd(e) {
+    const cancelled = e.type === 'pointercancel';
+    if (press?.pointerId === e.pointerId) { cancelPress(); return; }
+    if (create?.pointerId === e.pointerId) {
       const c = create; create = null; $('#cx-root').classList.remove('creating');
+      if (cancelled) { clearGhost(); return; }
       // a plain click takes the half hour under the cursor
       if (!c.started) { const s = Math.min((c.d + 1) * D - 30, c.d * D + Math.floor((c.s0 - c.d * D) / 30) * 30); c.s = s; c.e = s + 30; }
       lastDragEnd = Date.now();
@@ -165,10 +200,11 @@
       openForm('new', null, { fixed: true, start: toLocal(c.s), dur: fmtDur(c.e - c.s) });
       return;
     }
-    if (!drag) return; const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none'; $('#cx-root').classList.remove('grabbing', 'resizing');
+    if (drag?.pointerId !== e.pointerId) return;
+    const dd = drag; drag = null; $('#cx-dlabel', root).style.display = 'none'; $('#cx-root').classList.remove('grabbing', 'resizing');
     if (!dd.started) return;
     lastDragEnd = Date.now(); dd.blk.classList.remove('dragging');
-    if (dd.s === dd.it.s && dd.e === dd.it.e) { render(); return; }
+    if (cancelled || (dd.s === dd.it.s && dd.e === dd.it.e)) { render(); return; }
     A().onDrop(dd);
   }
 
@@ -178,7 +214,8 @@
     if (e.target.closest('#cx-ov') || e.target.closest('#cx-cmenu')) return;
     const sh = e.target.closest('#cx-toast [data-show]'); if (sh) { week = +sh.dataset.show; C.ui.hideToast(); render(); return; }
     if (e.target.closest('#cx-pop [data-close]')) { pop().hidden = true; return; }
-    const cb = e.target.closest('#cx-grid [data-cb]'); if (cb) { A().toggleDone(cb.closest('.blk').dataset.k); return; }
+    // Done/Undone lives in the details popup; keep it open with the new status
+    const done = e.target.closest('#cx-pop [data-done]'); if (done) { const k = done.dataset.done; A().toggleDone(k); const b = $(`#cx-grid .blk[data-k="${CSS.escape(k)}"]`, root); if (b) openDetails(k, b); return; }
     const acts = e.target.closest('#cx-pop [data-acts]'); if (acts) { const r = acts.getBoundingClientRect(); A().openMenu(acts.dataset.acts, r.left, r.bottom + 4, true); return; }
     const act = e.target.closest('#cx-pop [data-act]'); if (act) { pop().hidden = true; A().runAction(act.dataset.act, act.dataset.k); return; }
     const warn = e.target.closest('#cx-grid [data-warn]'); if (warn) { openDetails(warn.closest('.blk').dataset.k, warn.closest('.blk'), true); return; }
@@ -186,7 +223,7 @@
     if (e.target.closest('#cx-pop')) return;
     if (!e.target.closest('.hdr')) A().closeAll();
   }
-  function onContext(e) { const blk = e.target.closest('.blk'); if (!blk) return; e.preventDefault(); A().openMenu(blk.dataset.k, e.clientX, e.clientY); }
+  function onContext(e) { if (create?.touch || press) { e.preventDefault(); return; } const blk = e.target.closest('.blk'); if (!blk) return; e.preventDefault(); A().openMenu(blk.dataset.k, e.clientX, e.clientY); }
 
   C.screen('calendar', {
     mount(el) {
@@ -214,17 +251,22 @@
       $('#w-today', el).addEventListener('click', () => { week = 0; A().closeAll(); render(); });
       $('#cx-grid', el).addEventListener('pointerdown', onPointerDown);
       $('#cx-grid', el).addEventListener('contextmenu', onContext);
+      $('#cx-grid', el).addEventListener('touchmove', onTouchMove, { passive: false });
       $('#cx-scroll', el).addEventListener('scroll', () => { pop().hidden = true; A().closeMenu(); });
       window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointerup', onPointerEnd);
+      window.addEventListener('pointercancel', onPointerEnd);
       $('#cx-app').addEventListener('click', onClick);
       render();
       $('#cx-scroll', el).scrollTop = 7 * PXH;
     },
     unmount() {
+      cancelPress();
       clearGhost();
+      $('#cx-root').classList.remove('creating', 'grabbing', 'resizing');
       window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointerup', onPointerEnd);
+      window.removeEventListener('pointercancel', onPointerEnd);
       $('#cx-app').removeEventListener('click', onClick);
       A().resetView();
       root = null;

@@ -1,5 +1,6 @@
 (function (C) {
   'use strict';
+  C.mobileLayout = window.matchMedia('(max-width: 800px)');
   C.$ = (s, r = document) => r.querySelector(s);
   C.$$ = (s, r = document) => [...r.querySelectorAll(s)];
   C.esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

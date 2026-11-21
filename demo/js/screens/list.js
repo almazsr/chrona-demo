@@ -74,6 +74,7 @@
   // ---------- render ----------
   let form = null, fhEl = null, focusRef = null, rowRefs = new Map();
   function render() {
+    if (!root) return;
     const all = C.solver.items(), timed = all.filter(inTime), rows = timed.filter(passOthers), hidden = timed.length - rows.length;
     const f = timef()[filters.time];
     $('#l-sub').textContent = f.a === f.b ? `${f.label} · ${fmtDay(f.a)}` : `${f.label} · ${fmtDay(f.a).slice(0, 5)} – ${fmtDay(f.b)}`;
@@ -98,12 +99,15 @@
     if (!groups.length) h += `<div class="empty">No time blocks match these filters.${othersActive() || filters.time !== '2w' ? ' <span data-reset="1" style="color:#4a9ee8;cursor:pointer;font-weight:600">Reset filters</span>' : ''}</div>`;
     if (form && form.mode === 'new') h += '<div data-fh="1"></div>';
     else h += '<div class="addrow" data-addrow="1"><span class="pl">+</span>Add time block</div>';
+    const scroll = $('#cx-scroll', root), scrollTop = scroll.scrollTop;
     $('#cx-list').innerHTML = h;
     if (form && form.mode === 'edit' && !editShown) { form = null; fhEl = null; }
     const ph = $('#cx-list [data-fh]'); if (ph && fhEl) ph.replaceWith(fhEl);
     renderSide();
+    scroll.scrollTop = scrollTop;
   }
   function renderAnimated() {
+    if (!root) return;
     const first = new Map();
     $$('#cx-list .lrow').forEach(r => { const rc = r.getBoundingClientRect(); if (rc.height) first.set(r.dataset.k, { top: rc.top, s: r.dataset.s }); });
     render();
@@ -136,10 +140,12 @@
   }
   function adjustSchedule(msg, after) {
     C.actions.closeAll();
-    $('#cx-progress').classList.add('on');
+    const progress = $('#cx-progress', root);
+    progress.classList.add('on');
     setTimeout(() => {
       const moved = C.solver.replan();
-      missingRef = null; renderAnimated(); $('#cx-progress').classList.remove('on');
+      if (!progress.isConnected) { C.refresh(); return; }
+      missingRef = null; renderAnimated(); progress.classList.remove('on');
       if (after) after(moved); else C.ui.toast(`${msg ? msg + ' · ' : ''}Schedule adjusted${moved ? ` · ${moved} time block${moved > 1 ? 's' : ''} moved` : ''}${missingRef ? ' · hidden by filters <span data-reveal="1">Show</span>' : ''}`, missingRef ? 6000 : 3200);
     }, 700);
   }
@@ -251,7 +257,7 @@
       $('#cx-app').addEventListener('click', onClick);
       render();
     },
-    unmount() { $('#cx-app').removeEventListener('click', onClick); C.actions.resetView(); root = null; },
+    unmount() { $('#cx-app').removeEventListener('click', onClick); C.actions.resetView(); focusRef = null; root = null; },
     refresh() { if (!form) render(); },
   });
 })(window.Chrona = window.Chrona || {});

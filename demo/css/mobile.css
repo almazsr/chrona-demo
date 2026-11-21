@@ -35,21 +35,29 @@
   .cx select,
   .cx textarea { font-size: 16px; }
 
-  .cx .scr-signin .si { grid-template-columns: 1fr; }
+  .cx .scr-signin .si { grid-template-columns: 1fr; grid-auto-rows: max-content; overflow-y: auto; }
   .cx .scr-signin .si-left { padding: 28px 20px; }
-  .cx .scr-signin .si-right { min-height: 180px; border-left: 0; border-top: 1px solid #e3e8ef; }
+  .cx .scr-signin .si-right { padding: 16px 20px; border-left: 0; border-top: 1px solid #e3e8ef; }
+  .cx .scr-signin .si-desktop-week { display: none; }
+  .cx .scr-signin .si-mobile-week { display: block; flex: 1; min-width: 0; }
 
   .cx .scr-setup .su-hdr { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
   .cx .scr-setup .su-stepper { flex: 1 1 180px; }
-  .cx .scr-setup .su-split { grid-template-columns: 1fr; overflow: auto; }
-  .cx .scr-setup .su-left { min-height: 240px; border-right: 0; border-bottom: 1px solid #e3e8ef; }
-  .cx .scr-setup .su-pvt { flex-wrap: wrap; }
-  .cx .scr-setup .su-pvt > span:last-child { white-space: normal; }
+  .cx .scr-setup .su-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .cx .scr-setup .su-left { border-right: 0; }
+  .cx .scr-setup .su-right { display: none; }
   .cx .sc-chip.saved .sc-edit { display: flex; position: static; transform: none; }
 
   .cx .bar { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
   .cx .wtitle { min-width: 0; }
   .cx .quick { flex: 1 1 160px; }
+  .cx .scr-calendar .blk .lk,
+  .cx .scr-calendar .blk .rp,
+  .cx .scr-calendar .blk .warn { display: none; }
+  .cx .scr-calendar .grid { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  /* outline is drawn on the border box, so it also covers the category stripe on the left */
+  .cx .scr-calendar .blk:is(.fixed, .bad) { outline: 1.5px solid #49515e; outline-offset: -1.5px; }
+  .cx .scr-calendar .blk.bad { outline-color: #e5484d; box-shadow: none; }
 
   .cx .lv { position: relative; }
   .cx .lbar h3 { display: none; }
@@ -82,7 +90,9 @@
   .cx .lrow .rbs { opacity: 1; pointer-events: auto; }
 
   .cx .rvscroll { padding: 12px 12px 70px; }
-  .cx .rcard { padding: 14px 12px; }
+  .cx .rcard { padding: 14px 12px; -webkit-tap-highlight-color: transparent; }
+  .cx .rnav, .cx .racts .kb, .cx .ahead .desktop-only { display: none; }
+  .cx .ahead .mobile-only { display: block; }
 
   .cx .scr-settings .st { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   .cx .scr-settings .st-side { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 10px; border-right: 0; border-bottom: 1px solid #e3e8ef; }
