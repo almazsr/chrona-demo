@@ -1,0 +1,19 @@
+/* Chrona "tetris" preview, see js/tetris.js. Self-contained: every class starts with tt-. */
+.tt { display: grid; grid-template-columns: repeat(var(--tt-days, 3), minmax(0, 1fr)); gap: 8px; height: 100%; }
+.tt-day { display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid #e6ebf2; border-radius: 8px; }
+.tt-label { padding: 6px 0 4px; text-align: center; font-size: 11px; font-weight: 600; color: #8a96a6; }
+.tt-col { position: relative; flex: 1; min-height: 0; margin: 0 5px 6px; overflow: hidden; }
+.tt-grid {
+  background-image: linear-gradient(to bottom, transparent calc(100% - 1px), #eef1f5 calc(100% - 1px));
+  background-size: 100% calc(100% / var(--tt-rows, 5));
+}
+.tt-blk {
+  position: absolute; left: 0; right: 0; box-sizing: border-box; overflow: hidden;
+  padding: 4px; border-left: 3px solid; border-radius: 5px; transform-origin: 50% 100%;
+  font-size: 11px; font-weight: 600; line-height: 1.2; color: #1d2633;
+}
+.tt-blk > * { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tt-blk small { font-size: 10px; font-weight: 400; color: rgba(29, 38, 51, .6); }
+.tt-blk span { text-decoration: line-through transparent; transition: text-decoration-color .1s; }
+.tt-blk.tt-done span { text-decoration-color: currentColor; }
+.tt-blk.tt-short small { display: none; }

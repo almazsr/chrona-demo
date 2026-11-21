@@ -39,17 +39,7 @@
   .cx .scr-signin .si-left { padding: 28px 20px; }
   .cx .scr-signin .si-right { padding: 16px 20px; border-left: 0; border-top: 1px solid #e3e8ef; }
   .cx .scr-signin .si-desktop-week { display: none; }
-  .cx .scr-signin .si-mobile-week { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .cx .scr-signin .si-mobile-week .si-dc {
-    flex: none;
-    height: 180px;
-    overflow: hidden;
-    background: repeating-linear-gradient(to bottom, transparent 0 35px, #eef1f5 35px 36px);
-  }
-  .cx .scr-signin .si-mobile-week .si-blk { padding: 4px; transform-origin: 50% 100%; }
-  .cx .scr-signin .si-mobile-week .si-blk > * { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cx .scr-signin .si-mobile-week .si-blk span { text-decoration: line-through transparent; transition: text-decoration-color .1s; }
-  .cx .scr-signin .si-mobile-week .si-blk.si-done span { text-decoration-color: currentColor; }
+  .cx .scr-signin .si-mobile-week { display: block; flex: 1; min-width: 0; }
 
   .cx .scr-setup .su-hdr { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
   .cx .scr-setup .su-stepper { flex: 1 1 180px; }

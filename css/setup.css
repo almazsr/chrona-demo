@@ -15,17 +15,8 @@
 .cx .scr-signin .si-ico.ms i { width:8px; height:8px; display:block; }
 .cx .scr-signin .si-foot { color:#8a96a6; font-size:12px; margin-top:16px; }
 .cx .scr-signin .si-right { background:#f1f5fa; border-left:1px solid #e3e8ef; padding:28px 22px; display:flex; min-height:0; }
-.cx .scr-signin .si-wk { flex:1; display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.cx .scr-signin .si-desktop-week { flex:1; min-width:0; min-height:0; }
 .cx .scr-signin .si-mobile-week { display:none; }
-.cx .scr-signin .si-d { display:flex; flex-direction:column; background:#fff; border:1px solid #e6ebf2; border-radius:8px; min-height:0; }
-.cx .scr-signin .si-d > b { text-align:center; font-size:11px; color:#8a96a6; font-weight:600; padding:6px 0 4px; }
-.cx .scr-signin .si-dc { position:relative; flex:1; margin:0 5px 6px; }
-.cx .scr-signin .si-blk { position:absolute; left:0; right:0; box-sizing:border-box; border-radius:5px; font-size:11px; font-weight:600; padding:3px 5px; line-height:1.2; color:#1d2633; overflow:hidden; }
-.cx .scr-signin .si-blk small { display:block; font-weight:400; font-size:10px; color:rgba(29,38,51,.6); }
-.cx .scr-signin .si-work { background:#bfe0fb; border-left:3px solid #4a9ee8; }
-.cx .scr-signin .si-fam { background:#fde2c8; border-left:3px solid #f08a2e; }
-.cx .scr-signin .si-gym { background:#cdeedb; border-left:3px solid #2fa866; }
-.cx .scr-signin .si-side { background:#e4dcfb; border-left:3px solid #7c5ce6; }
 
 /* ---------- setup ---------- */
 .cx .scr-setup .su { flex:1; min-height:0; display:flex; flex-direction:column; background:#f6f8fb; }
