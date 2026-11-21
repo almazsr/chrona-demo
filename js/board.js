@@ -68,7 +68,7 @@
   function makeBlock(b) {
     var el = document.createElement('div');
     el.className = 'blk ' + (b[1] === 'fixed' ? 'blk-meet' : 'blk-work');
-    el.innerHTML = '<div class="tt"><b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div><small></small>';
+    el.innerHTML = '<div class="bt"><b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div><small></small>';
     el.querySelector('b').textContent = b[2];
     grid.appendChild(el);
     els[b[0]] = el;

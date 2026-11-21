@@ -3,48 +3,192 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Clickable demo of Chrona, a calendar that schedules your tasks for you.">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/setup.css">
-  <link rel="stylesheet" href="css/settings.css">
-  <link rel="stylesheet" href="css/calendar.css">
-  <link rel="stylesheet" href="css/list.css">
-  <link rel="stylesheet" href="css/review.css">
-  <link rel="stylesheet" href="css/tetris.css">
-  <link rel="stylesheet" href="css/mobile.css">
+  <title>Chrona: a calendar that replans your week</title>
+  <meta name="description" content="Chrona fits your tasks into the gaps between meetings and replans the week when a new call lands on top of your work. Try the interactive demo.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Chrona: meetings move, your plan keeps up">
+  <meta property="og:description" content="A calendar that fits tasks between meetings and replans when the day changes. Try the demo in your browser.">
+  <meta property="og:image" content="https://almazsr.github.io/chrona-demo/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%238ec5f5'/%3E%3C/svg%3E">
+  <script>
+    // Old demo links (…/chrona-demo/#/calendar) keep working after the demo moved to demo/.
+    if (/^#\//.test(location.hash)) location.replace('demo/' + location.hash);
+  </script>
+  <link rel="stylesheet" href="demo/css/tetris.css">
+  <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
   <header class="top">
     <div class="wrap top-in">
       <a class="logo" href="./" aria-label="Chrona home"><span class="mark" aria-hidden="true"></span>Chrona</a>
       <nav class="top-nav" aria-label="Page">
+        <a href="#replan">Replanning</a>
         <a href="#how">How it works</a>
         <a href="#control">Control</a>
         <a href="#demo">About the demo</a>
       </nav>
       <a class="btn btn-sm" href="demo/" data-open-demo>Try the demo</a>
     </div>
-  </div>
-  <script src="js/core.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/router.js"></script>
-  <script src="js/markers.js"></script>
-  <script src="js/series.js"></script>
-  <script src="js/solver.js"></script>
-  <script src="js/sample.js"></script>
-  <script src="js/datefield.js"></script>
-  <script src="js/autofill.js"></script>
-  <script src="js/form.js"></script>
-  <script src="js/actions.js"></script>
-  <script src="js/spaces-cats.js"></script>
-  <script src="js/tetris.js"></script>
-  <script src="js/screens/signin.js"></script>
-  <script src="js/screens/setup.js"></script>
-  <script src="js/screens/settings.js"></script>
-  <script src="js/screens/calendar.js"></script>
-  <script src="js/screens/list.js"></script>
-  <script src="js/screens/review.js"></script>
-  <script src="js/app.js"></script>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap hero-in">
+        <div class="hero-text">
+          <h1 id="hero-title" class="hero-title"><span>Meetings move.</span> <span>Your plan keeps up.</span></h1>
+          <p class="lede">Chrona is a calendar for people whose days are mostly calls. You add tasks once. Chrona fits them into the gaps between meetings, and when a new call lands on top of your work, it finds that work a new place.</p>
+          <div class="hero-cta">
+            <a class="btn" href="demo/" data-open-demo>Try the demo</a>
+            <p class="hint">Free, in your browser, about five minutes.</p>
+          </div>
+        </div>
+        <div class="hero-week" aria-hidden="true">
+          <div class="hero-week-desktop" id="week-desktop"></div>
+          <div class="hero-week-mobile" id="week-mobile"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="replan" id="replan" aria-labelledby="replan-title">
+      <div class="wrap">
+        <h2 id="replan-title">A call lands on your work. The work moves, the meetings don't.</h2>
+        <p class="section-lede">A founder's week with tasks placed between meetings. Add a two-hour client call on Tuesday and see where each task goes.</p>
+        <figure class="board-fig" id="board">
+          <div class="board-bar">
+            <div class="legend" aria-hidden="true">
+              <span><i class="sw sw-fixed"><svg class="lk" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path fill="currentColor" d="M2.5 4.5V3a2.5 2.5 0 0 1 5 0v1.5H8a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1h.5zm1.2 0h2.6V3a1.3 1.3 0 0 0-2.6 0v1.5z"/></svg></i>Fixed: stays put</span>
+              <span><i class="sw sw-flex"></i>Flexible: Chrona can move it</span>
+            </div>
+            <button type="button" class="btn btn-ghost" id="board-play" aria-controls="board-log">Add a client call on Tuesday</button>
+          </div>
+          <div class="board" aria-hidden="true">
+            <div class="board-days" id="board-days"></div>
+            <div class="board-body">
+              <div class="board-hours" id="board-hours"></div>
+              <div class="board-grid" id="board-grid"></div>
+            </div>
+          </div>
+          <figcaption>
+            <ol class="log" id="board-log" aria-live="polite"></ol>
+            <p class="log-idle" id="board-idle">Fixed time blocks have a lock. Flexible ones can move.</p>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="pain" aria-labelledby="pain-title">
+      <div class="wrap narrow">
+        <h2 id="pain-title">Sound like your week?</h2>
+        <ul class="pain-list">
+          <li>Half the week is calls. Real work gets whatever is left, usually after six.</li>
+          <li>One meeting moves, and you spend twenty minutes dragging tasks around the calendar.</li>
+          <li>The important thing slips to tomorrow again, because something urgent took its slot.</li>
+        </ul>
+        <p class="pain-turn">You don't need another productivity method. You need someone to do the reshuffling for you.</p>
+      </div>
+    </section>
+
+    <section class="how" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li>
+            <h3>Describe your week</h3>
+            <p>Tell Chrona your working hours and personal time, and which kinds of work belong where. A short chat sets it up.</p>
+          </li>
+          <li>
+            <h3>Add tasks, not time slots</h3>
+            <p>Give a task a duration, a priority and a deadline if it has one. Auto-Fill guesses these from the task name.</p>
+          </li>
+          <li>
+            <h3>Let the calendar rearrange itself</h3>
+            <p>When a meeting appears or a task runs over, Chrona replans everything that can move. Priority and deadline decide what goes first.</p>
+          </li>
+          <li>
+            <h3>Close the day in a minute</h3>
+            <p>Mark work as done, partly done, or postponed. Whatever is left gets new time on its own.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="control" id="control" aria-labelledby="control-title">
+      <div class="wrap">
+        <h2 id="control-title">You decide what can move</h2>
+        <div class="control-cols">
+          <div class="control-item">
+            <div class="chip chip-meet" aria-hidden="true"><div class="bt"><b>Board call</b><svg class="lk" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path fill="currentColor" d="M2.5 4.5V3a2.5 2.5 0 0 1 5 0v1.5H8a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1h.5zm1.2 0h2.6V3a1.3 1.3 0 0 0-2.6 0v1.5z"/></svg></div><small>16:30–17:30</small></div>
+            <h3>Fixed</h3>
+            <p>Meetings and anything you pin in place. Chrona never moves them. Drag them yourself whenever you like.</p>
+          </div>
+          <div class="control-item">
+            <div class="chip chip-work" aria-hidden="true"><div class="bt"><b>Investor update</b></div><small>1h 30m, deadline Wed</small></div>
+            <h3>Flexible</h3>
+            <p>Tasks with a duration. Chrona moves them only inside your working hours, never before their start date and never past their deadline.</p>
+          </div>
+          <div class="control-item">
+            <div class="chip chip-work chip-bad" aria-hidden="true"><div class="bt"><b>Board deck</b><span class="warn">!</span></div><small>Can't finish by Thu</small></div>
+            <h3>Flagged, not hidden</h3>
+            <p>When a deadline can't be met, the task is marked so you can decide. Chrona doesn't quietly break your rules to make the week fit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="demo" aria-labelledby="about-title">
+      <div class="wrap narrow">
+        <h2 id="about-title">What the demo is</h2>
+        <p class="about-lede">A working preview of Chrona with a sample week, so you can add your own tasks and see them placed and replanned.</p>
+        <ul class="facts">
+          <li>Sign-in is simulated. No account is created and nothing is connected to your real calendar yet.</li>
+          <li>The setup assistant and Auto-Fill give scripted answers.</li>
+          <li>Everything you add stays in this browser. Reset it any time from the avatar menu.</li>
+          <li>Works on a computer and on a phone.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="final" aria-labelledby="final-title">
+      <div class="wrap">
+        <h2 id="final-title">Add a meeting on top of your work and see what happens.</h2>
+        <a class="btn btn-lg" href="demo/" data-open-demo>Try the demo</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <span class="logo logo-sm"><span class="mark" aria-hidden="true"></span>Chrona</span>
+      <span>Early preview, 2026</span>
+    </div>
+  </footer>
+
+  <dialog class="gate" id="gate" aria-labelledby="gate-title">
+    <form class="gate-form" id="gate-form" novalidate>
+      <button type="button" class="gate-close" data-close aria-label="Close">&times;</button>
+      <h2 id="gate-title">Open the demo</h2>
+      <p class="gate-sub">Leave your name and email so we can ask how it went. No newsletter.</p>
+      <label class="field">
+        <span>Name</span>
+        <input name="name" type="text" autocomplete="name" required maxlength="100">
+        <em class="err" data-err="name" hidden>Enter your name.</em>
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input name="email" type="email" autocomplete="email" inputmode="email" required maxlength="200">
+        <em class="err" data-err="email" hidden>Enter an email like name@company.com.</em>
+      </label>
+      <button type="submit" class="btn btn-block">Open the demo</button>
+      <p class="gate-note">We use this only to contact you about Chrona.</p>
+    </form>
+  </dialog>
+
+  <script src="demo/js/tetris.js"></script>
+  <script src="demo/js/tetris-presets.js"></script>
+  <script src="js/week.js"></script>
+  <script src="js/leads.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/gate.js"></script>
 </body>
 </html>
