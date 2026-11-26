@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chrona: a calendar that works for you</title>
-  <meta name="description" content="A calendar for independents that gives every task real time, keeps your evenings free and replans quietly when the day changes. Try the demo.">
+  <meta name="description" content="A calendar for solo founders, freelancers and consultants. Every task gets real time between your calls, your free time stays protected, and the week replans quietly when the day changes. Try Free Demo.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Chrona: a calendar that works for you, not one that pushes you">
-  <meta property="og:description" content="Made for independents. Every task gets real time, evenings stay yours, half done counts. Try the demo in your browser.">
+  <meta property="og:description" content="For solo founders, freelancers and consultants. Every task gets real time, free time stays yours, half done counts. Try Free Demo.">
   <meta property="og:image" content="https://almazsr.github.io/chrona-demo/og.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%238ec5f5'/%3E%3C/svg%3E">
@@ -26,9 +26,8 @@
         <a href="#features">How it helps</a>
         <a href="#replan">Replanning</a>
         <a href="#progress">Progress</a>
-        <a href="#demo">About the demo</a>
       </nav>
-      <a class="btn btn-sm" href="demo/" data-open-demo>Try the demo</a>
+      <a class="btn btn-sm" href="demo/" data-open-demo>Try Free Demo</a>
     </div>
   </header>
 
@@ -37,29 +36,15 @@
       <div class="wrap hero-in">
         <div class="hero-text">
           <h1 id="hero-title" class="hero-title"><span>A calendar that works for you.</span> <span>Not one that pushes you.</span></h1>
-          <p class="lede">Made for independents: freelancers, solo founders, consultants. Chrona gives every task real time between your calls, keeps your evenings free, and replans quietly when the day changes.</p>
+          <p class="lede">Made for solo founders, freelancers and consultants. Chrona gives every task real time between your calls, protects your free time, and replans quietly when the day changes.</p>
           <div class="hero-cta">
-            <a class="btn" href="demo/" data-open-demo>Try the demo</a>
-            <p class="hint">Free. Runs in your browser. Works on your phone.</p>
+            <a class="btn" href="demo/" data-open-demo>Try Free Demo</a>
           </div>
         </div>
         <div class="hero-week" aria-hidden="true">
           <div class="hero-week-desktop" id="week-desktop"></div>
           <div class="hero-week-mobile" id="week-mobile"></div>
         </div>
-      </div>
-    </section>
-
-    <section class="pain" aria-labelledby="pain-title">
-      <div class="wrap narrow">
-        <h2 id="pain-title">One person, every role</h2>
-        <ul class="pain-list">
-          <li>You're the CEO, the sales team and the support desk. The real work gets whatever time is left.</li>
-          <li>A client call lands on your deep work, and you spend twenty minutes reshuffling the week.</li>
-          <li>Your to-do list grows every day. Your week doesn't.</li>
-          <li>The important thing slides to tomorrow. Again.</li>
-        </ul>
-        <p class="pain-turn">You don't need another system to maintain. You need a calendar that does the reshuffling and leaves you alone.</p>
       </div>
     </section>
 
@@ -72,20 +57,28 @@
             <h3>Every task gets real time</h3>
             <p>A to-do list only grows. Chrona gives each task a place in your week, between your calls, so it actually gets done.</p>
           </div>
-          <figure class="scene" id="scene-time" aria-label="Five tasks leave a to-do list and become time blocks between calls">
+          <figure class="scene" id="scene-time" aria-label="A to-do list fills up, then all tasks move into time blocks between calls">
             <div class="scene-stage scene-todo" aria-hidden="true"></div>
-            <figcaption>Five tasks, five places in your week. <button type="button" class="replay" data-replay hidden>Replay</button></figcaption>
           </figure>
         </div>
 
         <div class="feat">
           <div class="feat-text">
-            <h3>Your evenings stay yours</h3>
-            <p>Tell Chrona your work hours and family time once. Work never lands in your evening. It goes to the next free morning.</p>
+            <h3>Not sure how long it takes?</h3>
+            <p>Type the task. Auto-Fill suggests how long it will take and which category it belongs to, based on tasks you've done before. Keep it or change it.</p>
           </div>
-          <figure class="scene" id="scene-evening" aria-label="A new task skips the evening family time and goes to the next morning">
+          <figure class="scene" id="scene-ai" aria-label="Auto-Fill suggests duration and category for a new task, which then lands in the calendar">
             <div class="scene-stage" aria-hidden="true"></div>
-            <figcaption>No work after six, unless you say so. <button type="button" class="replay" data-replay hidden>Replay</button></figcaption>
+          </figure>
+        </div>
+
+        <div class="feat">
+          <div class="feat-text">
+            <h3>Your free time stays yours</h3>
+            <p>Set your work hours and family time once. Work never lands in your evening. It goes to the next free morning.</p>
+          </div>
+          <figure class="scene" id="scene-evening" aria-label="A new work task skips family time and goes to the next morning within work hours">
+            <div class="scene-stage" aria-hidden="true"></div>
           </figure>
         </div>
 
@@ -109,14 +102,13 @@
     <section class="replan" id="replan" aria-labelledby="replan-title">
       <div class="wrap">
         <h2 id="replan-title">Something came up? The work moves. The meetings don't.</h2>
-        <p class="section-lede">A busy week with tasks placed between calls. Add a two-hour client call on Tuesday and see where each task goes. You don't drag anything.</p>
+        <p class="section-lede">A busy week with tasks placed between calls. A two-hour client call lands on Tuesday, and every task that was in the way finds a new free slot at once. You don't drag anything.</p>
         <figure class="board-fig" id="board">
           <div class="board-bar">
             <div class="legend" aria-hidden="true">
               <span><i class="sw sw-fixed"><svg class="lk" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path fill="currentColor" d="M2.5 4.5V3a2.5 2.5 0 0 1 5 0v1.5H8a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1h.5zm1.2 0h2.6V3a1.3 1.3 0 0 0-2.6 0v1.5z"/></svg></i>Fixed: stays put</span>
               <span><i class="sw sw-flex"></i>Flexible: Chrona can move it</span>
             </div>
-            <button type="button" class="btn btn-ghost" id="board-play" aria-controls="board-log">Add a client call on Tuesday</button>
           </div>
           <div class="board" aria-hidden="true">
             <div class="board-days" id="board-days"></div>
@@ -127,7 +119,6 @@
           </div>
           <figcaption>
             <ol class="log" id="board-log" aria-live="polite"></ol>
-            <p class="log-idle" id="board-idle">Fixed time blocks have a lock. Flexible ones can move.</p>
           </figcaption>
         </figure>
       </div>
@@ -137,69 +128,28 @@
       <div class="wrap">
         <h2 id="progress-title">Progress, not pressure</h2>
         <p class="section-lede">No red overdue pile, no streaks to keep. Chrona keeps what you did and quietly makes room for the rest.</p>
-        <div class="pair">
-          <div class="pair-item">
-            <figure class="scene" id="scene-partial" aria-label="Partially done keeps two of three hours and places the last hour tomorrow">
-              <div class="scene-stage" aria-hidden="true"></div>
-              <figcaption><button type="button" class="replay" data-replay hidden>Replay</button></figcaption>
-            </figure>
-            <h3>Half done counts</h3>
-            <p>Did two hours of three? Mark it partially done. Your progress stays visible, and the last hour gets its own time.</p>
-          </div>
-          <div class="pair-item">
-            <figure class="scene" id="scene-postpone" aria-label="Postpone moves a task to tomorrow morning">
-              <div class="scene-stage" aria-hidden="true"></div>
-              <figcaption><button type="button" class="replay" data-replay hidden>Replay</button></figcaption>
-            </figure>
-            <h3>Not today? Move it</h3>
-            <p>Postpone to later today, tomorrow or next week in one tap. No guilt, no overdue list.</p>
+        <div class="feat feat-progress">
+          <figure class="scene" id="scene-progress" aria-label="Postpone moves a task to tomorrow, then Partially Done adds time for what is left">
+            <div class="scene-stage" aria-hidden="true"></div>
+          </figure>
+          <div class="feat-text progress-steps">
+            <div class="pstep" data-pstep="pp">
+              <h3>Not today? Move it</h3>
+              <p>Postpone to later today, tomorrow or next week in one tap. No guilt, no overdue list.</p>
+            </div>
+            <div class="pstep" data-pstep="partial">
+              <h3>Half done counts</h3>
+              <p>Did two hours of three? Mark it partially done. Your progress stays visible, and the last hour gets its own time.</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="control" id="control" aria-labelledby="control-title">
-      <div class="wrap">
-        <h2 id="control-title">You decide what can move</h2>
-        <div class="scene control-scene" id="scene-control">
-          <div class="scene-stage control-stage">
-          <div class="control-item">
-            <div class="chip chip-meet" aria-hidden="true"><div class="bt"><b>Client call</b><svg class="lk" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path fill="currentColor" d="M2.5 4.5V3a2.5 2.5 0 0 1 5 0v1.5H8a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1h.5zm1.2 0h2.6V3a1.3 1.3 0 0 0-2.6 0v1.5z"/></svg></div><small>16:30–17:30</small></div>
-            <h3>Fixed</h3>
-            <p>Calls and anything you pin in place. Chrona never moves them. Drag them yourself whenever you like.</p>
-          </div>
-          <div class="control-item">
-            <div class="chip chip-work chip-move" aria-hidden="true"><div class="bt"><b>Proposal draft</b></div><small>2h, deadline Wed</small></div>
-            <h3>Flexible</h3>
-            <p>Tasks with a duration. Chrona moves them only inside your work hours, never before their start date and never past their deadline.</p>
-          </div>
-          <div class="control-item">
-            <div class="chip chip-work chip-flag" aria-hidden="true"><div class="bt"><b>Website redesign</b><span class="warn">!</span></div><small>Can't finish by Thu</small></div>
-            <h3>Flagged, not hidden</h3>
-            <p>When a deadline can't be met, the task is marked so you can decide. Chrona doesn't quietly break your rules to make the week fit.</p>
-          </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="about" id="demo" aria-labelledby="about-title">
-      <div class="wrap narrow">
-        <h2 id="about-title">What the demo is</h2>
-        <p class="about-lede">A working preview of Chrona with a sample week, so you can add your own tasks and see them placed and replanned.</p>
-        <ul class="facts">
-          <li>Sign-in is simulated. No account is created and nothing is connected to your real calendar yet.</li>
-          <li>The setup assistant and Auto-Fill give scripted answers.</li>
-          <li>Everything you add stays in this browser. Reset it any time from the avatar menu.</li>
-          <li>Works on a computer and on a phone.</li>
-        </ul>
       </div>
     </section>
 
     <section class="final" aria-labelledby="final-title">
       <div class="wrap">
         <h2 id="final-title">See how Chrona would plan a week like yours.</h2>
-        <a class="btn btn-lg" href="demo/" data-open-demo>Try the demo</a>
+        <a class="btn btn-lg" href="demo/" data-open-demo>Try Free Demo</a>
       </div>
     </section>
   </main>
@@ -227,7 +177,7 @@
         <em class="err" data-err="email" hidden>Enter an email like name@company.com.</em>
       </label>
       <button type="submit" class="btn btn-block">Open the demo</button>
-      <p class="gate-note">We use this only to contact you about Chrona.</p>
+      <p class="gate-note">The demo uses sample data and doesn't connect to your real calendar. We use your email only to contact you about Chrona.</p>
     </form>
   </dialog>
 
@@ -235,6 +185,7 @@
   <script src="demo/js/tetris-presets.js"></script>
   <script src="js/week.js"></script>
   <script src="js/leads.js"></script>
+  <script src="js/loop.js"></script>
   <script src="js/board.js"></script>
   <script src="js/scenes.js"></script>
   <script src="js/gate.js"></script>

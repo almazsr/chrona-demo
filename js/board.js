@@ -1,5 +1,5 @@
-/* Hero board: a sample founder's week. Adding a client call on Tuesday shows the core idea:
-   meetings stay put, flexible tasks move to the next free slot in priority order.
+/* Replanning example: a busy week. A client call lands on Tuesday; meetings stay put and every
+   displaced flexible task moves to its next free slot at the same time, then it loops (js/loop.js).
    The "after" positions are written out by hand to match how the demo's solver would place them
    (scheduling-engine.feature: "Place flexible work in nearest free slot"). */
 (function () {
@@ -51,14 +51,10 @@
   var daysEl = document.getElementById('board-days');
   var hoursEl = document.getElementById('board-hours');
   var log = document.getElementById('board-log');
-  var idle = document.getElementById('board-idle');
-  var btn = document.getElementById('board-play');
   var frame = board.querySelector('.board');
 
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   var narrow = window.matchMedia('(max-width: 720px)');
-  var state = 'before'; // before | playing | after
-  var timers = [];
+  var state = 'before'; // before | after
   var els = {};
   var pos = {}; // id -> [day, start, end]
 
@@ -113,15 +109,24 @@
     log.appendChild(li);
   }
 
-  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
-  function later(fn, ms) { timers.push(setTimeout(fn, reduced.matches ? 0 : ms)); }
+  var moves = BLOCKS.filter(function (b) { return b[6]; });
 
-  function play() {
-    if (state !== 'before') return;
-    state = 'playing';
-    idle.hidden = true;
+  // first frame: the week before the call
+  function reset() {
+    var call = els[CALL[0]];
+    if (call) { call.remove(); delete els[CALL[0]]; delete pos[CALL[0]]; }
+    moves.forEach(function (b) {
+      pos[b[0]] = [b[3], b[4], b[5]];
+      els[b[0]].classList.remove('is-moved');
+    });
+    state = 'before';
     log.innerHTML = '';
-    btn.disabled = true;
+    layout();
+  }
+
+  // the call drops in on top of work
+  function dropCall() {
+    state = 'after';
     makeBlock(CALL);
     var call = els[CALL[0]];
     call.classList.add('is-new');
@@ -131,55 +136,29 @@
     call.classList.remove('is-new');
     call.classList.add('is-in');
     addLog('Client call added, Tue 10:00–12:00', true);
-
-    var moves = BLOCKS.filter(function (b) { return b[6]; });
-    moves.forEach(function (b, i) {
-      later(function () {
-        pos[b[0]] = b[6];
-        place(b[0]);
-        els[b[0]].classList.add('is-moved');
-        addLog(b[2] + ' moved to ' + DAYS[b[6][0]] + ' ' + b[6][1]);
-      }, 650 + i * 520);
-    });
-    later(function () {
-      addLog('Meetings untouched', true);
-      state = 'after';
-      btn.textContent = 'Undo the call';
-      btn.disabled = false;
-    }, 650 + moves.length * 520);
   }
 
-  function undo() {
-    clearTimers();
-    var call = els[CALL[0]];
-    if (call) { call.remove(); delete els[CALL[0]]; delete pos[CALL[0]]; }
-    BLOCKS.forEach(function (b) {
-      if (!b[6]) return;
-      pos[b[0]] = [b[3], b[4], b[5]];
-      els[b[0]].classList.remove('is-moved');
+  // every displaced task moves at the same time, as in the demo's calendar
+  function replan() {
+    moves.forEach(function (b) {
+      pos[b[0]] = b[6];
+      place(b[0]);
+      els[b[0]].classList.add('is-moved');
     });
-    state = 'before';
-    log.innerHTML = '';
-    idle.hidden = false;
-    btn.textContent = 'Add a client call on Tuesday';
-    btn.disabled = false;
-    layout();
   }
 
-  btn.addEventListener('click', function () { if (state === 'after') undo(); else play(); });
+  function report() {
+    moves.forEach(function (b) { addLog(b[2] + ' moved to ' + DAYS[b[6][0]] + ' ' + b[6][1]); });
+    addLog('Meetings untouched', true);
+  }
 
   hours();
   BLOCKS.forEach(makeBlock);
   layout();
   (narrow.addEventListener ? narrow.addEventListener('change', layout) : narrow.addListener(layout));
 
-  // Play once by itself when the board is first seen, unless the visitor prefers less motion.
-  if (!reduced.matches && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      io.disconnect();
-      later(play, 900);
-    }, { threshold: 0.35 });
-    io.observe(frame);
-  }
+  window.ChronaLoop(frame, function () {
+    reset();
+    return { steps: [[300, dropCall], [900, replan], [2000, report]] };
+  });
 })();
