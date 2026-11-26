@@ -75,10 +75,10 @@
     m.innerHTML = rows(items);
     host.appendChild(m);
     var hr = host.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
-    var left = ar.right - hr.left + 8;
-    if (left + 200 > hr.width) left = Math.max(4, ar.left - hr.left - 200 - 8);
+    var W = 236, left = ar.right - hr.left + 8;
+    if (left + W > hr.width) left = Math.max(4, Math.min(ar.left - hr.left - W - 8, hr.width - W - 4));
     m.style.left = left + 'px';
-    m.style.top = Math.max(4, Math.min(ar.top - hr.top, hr.height - 120)) + 'px';
+    m.style.top = Math.max(4, Math.min(ar.top - hr.top, hr.height - 200)) + 'px';
     return m;
   }
   function rows(items) {
@@ -260,27 +260,44 @@
     var steps = (host.closest('.feat') || host).querySelectorAll('[data-pstep]');
     function active(k) { [].forEach.call(steps, function (s) { s.classList.toggle('on', s.dataset.pstep === k); }); }
     active(null);
-    stage.innerHTML = '<div class="scene-cal"></div>';
+    stage.innerHTML = '<div class="scene-cal"></div>'
+      + '<div class="task-progress"><span class="tp-name">Investor deck</span><i class="tp-bar"><b></b></i><em class="tp-val">2h planned</em></div>';
     var cal = Mini(stage.querySelector('.scene-cal'), { days: ['Today', 'Tomorrow'], from: 9, to: 15 });
     cal.add('c', { fixed: true, title: 'Client call', day: 0, s: '09:00', e: '10:00' });
     cal.add('deck', { title: 'Investor deck', day: 0, s: '10:00', e: '12:00' });
     cal.add('port', { title: 'Update portfolio', day: 0, s: '12:00', e: '13:30' });
     cal.add('s', { fixed: true, title: 'Standup', day: 1, s: '09:00', e: '09:30' });
+    var bar = stage.querySelector('.tp-bar b'), val = stage.querySelector('.tp-val');
+    // the demo's Postpone submenu (time-block-actions.feature: Postpone flexible time block)
+    var WHEN = [{ k: 'n', ic: 'cal', label: 'Nearest later', val: 'next free time' }, { k: 't', ic: 'cal', label: 'Tomorrow', val: 'tmr' }, { k: 'w', ic: 'cal', label: 'Next week', val: 'next week' }, { k: 'o', ic: 'cal', label: 'Other…', val: 'pick a date' }];
     var m;
     return {
       steps: [
-        // Postpone
+        // Postpone → Tomorrow
         [0, function () { active('pp'); m = menu(stage, ACTIONS, cal.el('port')); }],
         [700, function () { pick(m, 'pp'); }],
-        [700, function () { m.innerHTML = rows([{ k: 'n', ic: 'cal', label: 'Nearest later' }, { k: 't', ic: 'cal', label: 'Tomorrow' }, { k: 'w', ic: 'cal', label: 'Next week' }]); }],
-        [500, function () { pick(m, 't'); }],
+        [700, function () { m.innerHTML = rows(WHEN); }],
+        [600, function () { pick(m, 't'); }],
         [600, function () { m.remove(); cal.el('port').classList.add('is-moved'); cal.move('port', 1, '09:30', '11:00'); }],
-        // Partially Done: the time block stays as it is, time for the rest is added
+        // Partially Done, step 1: time still needed
         [1600, function () { active('partial'); m = menu(stage, ACTIONS, cal.el('deck')); }],
         [700, function () { pick(m, 'partial'); }],
-        [700, function () { m.innerHTML = rows([{ k: 'r', ic: 'half', label: 'Time left', val: '1h' }, { k: 'p', ic: 'cal', label: 'Then', val: 'Nearest later' }]); pick(m, 'r'); }],
-        [800, function () { m.remove(); cal.el('deck').classList.add('is-done', 'flash'); }],
-        [600, function () { var el = cal.add('rest', { title: 'Investor deck', day: 0, s: '12:00', e: '13:00', note: '1h left' }); el.classList.add('appear', 'is-moved'); }],
+        [700, function () {
+          m.innerHTML = '<div class="mh">Time still needed</div>' + rows([{ k: '30', ic: 'half', label: '30 minutes' }, { k: '60', ic: 'half', label: '1 hour' }, { k: '120', ic: 'half', label: '2 hours' }, { k: 'o', ic: 'half', label: 'Other…' }]);
+        }],
+        [600, function () { pick(m, '60'); }],
+        // step 2: where the remaining work goes
+        [700, function () { m.innerHTML = '<div class="mh">1h left · not earlier than</div>' + rows(WHEN); }],
+        [600, function () { pick(m, 't'); }],
+        // the time block is marked done, a 1-hour time block is added tomorrow
+        [600, function () {
+          m.remove();
+          cal.el('deck').classList.add('is-done', 'flash');
+          var el = cal.add('rest', { title: 'Investor deck', day: 1, s: '11:00', e: '12:00', note: '1h left' });
+          el.classList.add('appear', 'is-moved');
+          bar.style.width = '67%';
+          val.textContent = '2h of 3h done';
+        }],
       ],
     };
   });
