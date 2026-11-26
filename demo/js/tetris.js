@@ -128,7 +128,7 @@
     function reset() {
       timers.forEach(clearTimeout);
       timers.clear();
-      el.innerHTML = `<div class="tt" style="--tt-days:${o.days.length};--tt-rows:${ROWS}">${o.days.map(d => `<div class="tt-day"><div class="tt-label">${esc(d)}</div><div class="tt-col${o.grid ? ' tt-grid' : ''}"${o.rowHeight ? ` style="flex:none;height:${o.rowHeight * ROWS}px"` : ''}></div></div>`).join('')}</div>`;
+      el.innerHTML = `<div class="tt-root" style="--tt-days:${o.days.length};--tt-rows:${ROWS}">${o.days.map(d => `<div class="tt-day"><div class="tt-label">${esc(d)}</div><div class="tt-col${o.grid ? ' tt-grid' : ''}"${o.rowHeight ? ` style="flex:none;height:${o.rowHeight * ROWS}px"` : ''}></div></div>`).join('')}</div>`;
       columns = [...el.querySelectorAll('.tt-col')].map((colEl, i) => {
         const column = { el: colEl, filled: 0, busy: false };
         setBounds(column, o.bounds && o.bounds[i]);

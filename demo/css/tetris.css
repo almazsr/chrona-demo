@@ -1,5 +1,5 @@
 /* Chrona "tetris" preview, see js/tetris.js. Self-contained: every class starts with tt-. */
-.tt { display: grid; grid-template-columns: repeat(var(--tt-days, 3), minmax(0, 1fr)); gap: 8px; height: 100%; }
+.tt-root { display: grid; grid-template-columns: repeat(var(--tt-days, 3), minmax(0, 1fr)); gap: 8px; height: 100%; }
 .tt-day { display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid #e6ebf2; border-radius: 8px; }
 .tt-label { padding: 6px 0 4px; text-align: center; font-size: 11px; font-weight: 600; color: #8a96a6; }
 .tt-col { position: relative; flex: 1; min-height: 0; margin: 0 5px 6px; overflow: hidden; }
