@@ -298,4 +298,43 @@
       ],
     };
   });
+
+  // ---------- 6. Connect Chrona to your favorite AI harness (MCP) ----------
+  // No AI tool is named or shown by logo (ALM-92): the chat is a generic assistant.
+  scene('scene-mcp', function (stage) {
+    var ASK = 'Find 3 hours for the investor deck before Thursday.';
+    stage.innerHTML = '<div class="chat">'
+      + '<div class="chat-h"><span class="chat-ic">' + IC.spark + '</span><span>AI assistant</span><span class="chat-conn"><i></i>Chrona · MCP</span></div>'
+      + '<div class="chat-log"></div>'
+      + '<div class="chat-in"><span class="chat-text"></span><span class="af-caret"></span><span class="chat-ph">Ask anything</span><span class="chat-send">' + IC.send + '</span></div>'
+      + '</div><div class="mcp-cal"></div>';
+    var cal = Mini(stage.querySelector('.mcp-cal'), { days: ['Mon', 'Tue', 'Wed'], from: 9, to: 15 });
+    cal.add('a', { fixed: true, title: 'Client call', day: 0, s: '09:00', e: '10:00' });
+    cal.add('b', { title: 'Proposal', day: 0, s: '10:00', e: '13:00' });
+    cal.add('c', { fixed: true, title: 'Lunch', day: 0, s: '13:00', e: '14:00' });
+    cal.add('d', { fixed: true, title: 'Discovery call', day: 1, s: '09:00', e: '10:00' });
+    cal.add('e', { fixed: true, title: 'Lunch', day: 1, s: '13:00', e: '14:00' });
+    cal.add('f', { fixed: true, title: 'Workshop', day: 2, s: '09:00', e: '12:00' });
+    var log = stage.querySelector('.chat-log'), text = stage.querySelector('.chat-text');
+    var ph = stage.querySelector('.chat-ph'), send = stage.querySelector('.chat-send');
+    function say(cls, html) { var el = document.createElement('div'); el.className = 'msg ' + cls; el.innerHTML = html; log.appendChild(el); return el; }
+
+    var steps = [[0, function () { ph.hidden = true; }]];
+    for (var i = 1; i <= ASK.length; i++) {
+      (function (n) { steps.push([32, function () { text.textContent = ASK.slice(0, n); }]); })(i);
+    }
+    var tool;
+    steps.push(
+      [400, function () { send.classList.add('is-press'); }],
+      [250, function () { text.textContent = ''; ph.hidden = false; say('msg-me', esc(ASK)); }],
+      [600, function () { tool = say('msg-tool is-busy', '<span class="tool-st"></span><span>Chrona</span><code>schedule_task</code>'); }],
+      [1100, function () {
+        tool.classList.remove('is-busy');
+        var el = cal.add('deck', { title: 'Investor deck', day: 1, s: '10:00', e: '13:00' });
+        el.classList.add('appear', 'is-moved');
+      }],
+      [700, function () { say('msg-ai', 'Done. <b>Investor deck</b> is on Tue 10:00–13:00, right after your discovery call. Your meetings didn’t move.'); }]
+    );
+    return { steps: steps };
+  });
 })();

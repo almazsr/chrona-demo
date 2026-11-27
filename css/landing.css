@@ -358,6 +358,40 @@ h2 { font-size: clamp(1.75rem, 1.25rem + 1.8vw, 2.5rem); font-weight: 700; lette
 .no-anim .blk, .no-anim .tp-bar b, .no-anim .mini-band, .no-anim .todo li, .no-anim .af-save, .no-anim .pstep, .no-anim .scene-menu { transition: none !important; animation: none !important; }
 
 /* ---------- responsive ---------- */
+/* ---------- AI harness (MCP) scene ---------- */
+.mcp-points { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; margin-top: 28px; max-width: 920px; }
+.mcp-points h3 { font-size: 1.1875rem; letter-spacing: -.005em; margin-bottom: 6px; }
+.mcp-points p { color: var(--muted); font-size: .9375rem; max-width: 42ch; }
+.mcp-fig { margin-top: 32px; }
+.mcp-fig .scene-stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; align-items: stretch; }
+.chat { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-height: 280px; }
+.chat-h { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); font-size: .8125rem; font-weight: 600; color: var(--text); }
+.chat-ic { width: 24px; height: 24px; border-radius: 7px; background: #efeafd; color: #7c5ce0; display: inline-flex; align-items: center; justify-content: center; }
+.chat-ic svg { width: 15px; height: 15px; }
+.chat-conn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: .6875rem; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.chat-conn i { width: 7px; height: 7px; border-radius: 50%; background: #43b26b; }
+.chat-log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 12px; }
+.msg { max-width: 88%; font-size: .8125rem; line-height: 1.45; border-radius: 12px; padding: 8px 11px; animation: msgIn .3s ease-out 1; }
+.msg-me { align-self: flex-end; background: var(--primary); color: var(--white); border-bottom-right-radius: 4px; }
+.msg-ai { align-self: flex-start; background: var(--panel); color: var(--text); border-bottom-left-radius: 4px; }
+.msg-tool { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; font-size: .75rem; font-weight: 600; color: var(--muted); background: var(--white); border: 1px solid var(--line); border-radius: 8px; }
+.msg-tool code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .6875rem; font-weight: 500; color: var(--text); background: var(--panel); border-radius: 4px; padding: 1px 5px; }
+.tool-st { width: 14px; height: 14px; border-radius: 50%; background: #43b26b; position: relative; flex-shrink: 0; }
+.tool-st::after { content: ""; position: absolute; left: 4.5px; top: 2.5px; width: 3px; height: 6px; border: solid var(--white); border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); }
+.msg-tool.is-busy .tool-st { background: none; border: 2px solid var(--line); border-top-color: var(--primary); animation: spin .8s linear infinite; }
+.msg-tool.is-busy .tool-st::after { display: none; }
+.chat-in { position: relative; display: flex; align-items: center; margin: 0 10px 10px; padding: 8px 8px 8px 12px; min-height: 40px; border: 1px solid var(--field); border-radius: 10px; font-size: .8125rem; }
+.chat-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-ph { color: var(--faint); }
+.chat-ph[hidden] { display: none; }
+.chat-send { margin-left: auto; width: 28px; height: 28px; flex-shrink: 0; border-radius: 8px; background: var(--primary); color: var(--white); display: inline-flex; align-items: center; justify-content: center; transition: transform .15s ease; }
+.chat-send.is-press { transform: scale(.9); }
+.mcp-cal .mini { height: 100%; display: flex; flex-direction: column; }
+.mcp-cal .mini-body { flex: 1; height: auto; min-height: calc(var(--rows) * 36px); }
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.no-anim .msg { animation: none; }
+
 @media (max-width: 800px) {
   .hero-in { grid-template-columns: 1fr; gap: 28px; }
   .hero-week-desktop { display: none; }
@@ -379,8 +413,10 @@ h2 { font-size: clamp(1.75rem, 1.25rem + 1.8vw, 2.5rem); font-weight: 700; lette
   .final .btn { width: 100%; }
   .final-week .blk { display: none; }
   .scene-todo { grid-template-columns: 1fr; }
+  .mcp-fig .scene-stage { grid-template-columns: 1fr; }
+  .mcp-points { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blk, .log li, .scene-menu, .af-caret { transition: none; animation: none; }
+  .blk, .log li, .scene-menu, .af-caret, .msg, .msg-tool .tool-st { transition: none; animation: none; }
 }
