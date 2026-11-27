@@ -115,12 +115,12 @@
     cal.add('m3', { fixed: true, title: 'Lunch', day: 1, s: '12:00', e: '13:00' });
     cal.add('m4', { fixed: true, title: 'Workshop', day: 2, s: '11:00', e: '13:00' });
 
-    // the list fills top to bottom in about 3 seconds
+    // the list fills top to bottom quickly, in about 1.2 seconds
     var steps = TASKS.map(function (t, i) {
-      return [i ? 600 : 0, function () { stage.querySelector('[data-id="' + t[0] + '"]').classList.remove('is-hidden'); }];
+      return [i ? 300 : 0, function () { stage.querySelector('[data-id="' + t[0] + '"]').classList.remove('is-hidden'); }];
     });
     // then every task flies into its time block at once, in about 2 seconds
-    steps.push([900, function () {
+    steps.push([700, function () {
       var still = stage.classList.contains('no-anim');
       TASKS.forEach(function (t) {
         var row = stage.querySelector('[data-id="' + t[0] + '"]');

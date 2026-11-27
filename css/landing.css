@@ -292,14 +292,12 @@ h2 { font-size: clamp(1.75rem, 1.25rem + 1.8vw, 2.5rem); font-weight: 700; lette
 .todo { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 100%; }
 .todo-h { font-size: .75rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
 .todo ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.todo li { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; padding: 6px 0; border-top: 1px solid var(--line-soft); font-size: .8125rem; line-height: 1.3; transition: color .3s ease, opacity .4s ease, transform .4s ease; }
+.todo li { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; padding: 6px 0; border-top: 1px solid var(--line-soft); font-size: .8125rem; line-height: 1.3; transition: opacity .25s ease, transform .25s ease; }
 .todo li:first-child { border-top: 0; }
 .todo li.is-hidden { opacity: 0; transform: translateY(-6px); }
 .todo-t { font-weight: 600; }
 .todo-d { color: var(--faint); font-size: .75rem; }
 .todo-at { grid-column: 1 / -1; font-size: .6875rem; color: var(--link); height: 0; overflow: hidden; transition: height .3s ease; }
-.todo li.is-placed { color: var(--faint); }
-.todo li.is-placed .todo-t { text-decoration: line-through; }
 .todo li.is-placed .todo-at { height: 1.2em; }
 .blk.is-flying { z-index: 4; }
 .blk.fly { transition: transform 2s cubic-bezier(.45, 0, .2, 1); }
