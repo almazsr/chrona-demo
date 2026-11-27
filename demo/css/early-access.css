@@ -1,0 +1,73 @@
+/* Early access form and corner button (js/early-access.js, features/early-access.feature).
+   Shared by the landing page and the demo; every class starts with ea-. */
+.ea { font-family: Onest, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; color: #1d2633; }
+.ea [hidden] { display: none !important; }
+
+.ea-card {
+  position: fixed; right: 20px; bottom: 20px; z-index: 1000;
+  width: 360px; max-width: calc(100vw - 32px); box-sizing: border-box;
+  background: #fff; border: 1px solid #e3e8ef; border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(30, 60, 110, .24);
+  padding: 22px 22px 18px;
+}
+.ea-card.is-in { animation: eaIn .25s ease-out 1; }
+@keyframes eaIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.ea-x {
+  position: absolute; right: 10px; top: 10px; width: 32px; height: 32px;
+  border: 1px solid #d9e0ea; border-radius: 8px; background: #fff; color: #3b4656;
+  font-family: inherit; font-size: 18px; line-height: 1; cursor: pointer;
+}
+.ea-x:hover { background: #f4f6f9; }
+.ea h2 { margin: 0 36px 6px 0; font-family: "Source Serif 4", Georgia, serif; font-size: 22px; font-weight: 700; letter-spacing: -.005em; line-height: 1.2; }
+.ea-sub { margin: 0 0 16px; color: #5b6878; font-size: 14px; line-height: 1.5; }
+.ea-field { display: block; margin-bottom: 12px; }
+.ea-field span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.ea-field input {
+  width: 100%; box-sizing: border-box; height: 42px; padding: 0 12px;
+  border: 1px solid #d9e0ea; border-radius: 8px; background: #fff; color: #1d2633;
+  font-family: inherit; font-size: 15px;
+}
+.ea-field input:focus { outline: none; border-color: #4a9ee8; box-shadow: 0 0 0 3px rgba(74, 158, 232, .18); }
+.ea-field input[aria-invalid="true"] { border-color: #e5484d; }
+.ea-err { display: block; margin-top: 5px; font-style: normal; font-size: 12.5px; color: #b4232a; }
+.ea-btn {
+  width: 100%; min-height: 44px; margin-top: 4px; border: 0; border-radius: 10px;
+  background: #4a9ee8; color: #fff; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.ea-btn:hover { background: #2b7de9; }
+.ea-btn:disabled { opacity: .6; cursor: default; }
+.ea-note { margin: 10px 0 0; text-align: center; font-size: 12px; color: #8a96a6; }
+.ea-done p { margin: 0; color: #5b6878; font-size: 14px; line-height: 1.5; }
+.ea :focus-visible { outline: 2px solid #4a9ee8; outline-offset: 2px; }
+
+/* collapsed: a calm button in the corner that glows a few times, then stays still */
+.ea-pill {
+  position: fixed; right: 20px; bottom: 20px; z-index: 1000;
+  display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; height: 42px;
+  border: 1px solid #b9d9f6; border-radius: 999px; background: #fff; color: #1d4f7a;
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(30, 60, 110, .16);
+}
+.ea-pill svg { color: #4a9ee8; }
+.ea-pill:hover { border-color: #4a9ee8; }
+.ea-pill.is-glow { animation: eaGlow 1.6s ease-in-out 3; }
+@keyframes eaGlow {
+  0%, 100% { box-shadow: 0 8px 22px rgba(30, 60, 110, .16), 0 0 0 0 rgba(74, 158, 232, 0); }
+  50% { box-shadow: 0 8px 22px rgba(30, 60, 110, .16), 0 0 0 8px rgba(74, 158, 232, .28); }
+}
+
+/* phones: a bottom sheet; the corner button sits above notifications */
+@media (max-width: 600px) {
+  .ea-card {
+    left: 0; right: 0; bottom: 0; width: auto; max-width: none;
+    border-radius: 16px 16px 0 0; border-bottom: 0;
+    padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+  }
+  @keyframes eaIn { from { transform: translateY(100%); } to { transform: none; } }
+  .ea-pill { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); height: 40px; padding: 0 14px; font-size: 13px; }
+  .ea-field input { font-size: 16px; } /* no zoom on iOS */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ea-card.is-in, .ea-pill.is-glow { animation: none; }
+}

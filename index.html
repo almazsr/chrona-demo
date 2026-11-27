@@ -19,6 +19,7 @@
   <link rel="preload" href="demo/fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="demo/css/fonts.css">
   <link rel="stylesheet" href="demo/css/tetris.css">
+  <link rel="stylesheet" href="demo/css/early-access.css">
   <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
@@ -30,7 +31,7 @@
         <a href="#replan">Replanning</a>
         <a href="#progress">Progress</a>
       </nav>
-      <a class="btn btn-sm" href="demo/" data-open-demo>Try Free Demo</a>
+      <a class="btn btn-sm" href="demo/">Try Free Demo</a>
     </div>
   </header>
 
@@ -41,7 +42,8 @@
           <h1 id="hero-title" class="hero-title"><span>A calendar that works for you.</span> <span>Not one that pushes you.</span></h1>
           <p class="lede">Made for solo founders, freelancers and consultants. Chrona gives every task real time between your calls, protects your free time, and replans quietly when the day changes.</p>
           <div class="hero-cta">
-            <a class="btn" href="demo/" data-open-demo>Try Free Demo</a>
+            <a class="btn" href="demo/">Try Free Demo</a>
+            <a class="ea-link" href="#" data-early-access="landing-hero">Or get early access by email</a>
           </div>
         </div>
         <div class="hero-week" aria-hidden="true">
@@ -162,7 +164,8 @@
         <div class="final-card">
           <h2 id="final-title">See how Chrona would plan a week like yours.</h2>
           <p>Add a few of your own tasks to a sample week and watch them find their place.</p>
-          <a class="btn btn-lg" href="demo/" data-open-demo>Try Free Demo</a>
+          <a class="btn btn-lg" href="demo/">Try Free Demo</a>
+          <a class="ea-link" href="#" data-early-access="landing-final">Or get early access by email</a>
         </div>
       </div>
     </section>
@@ -175,33 +178,15 @@
     </div>
   </footer>
 
-  <dialog class="gate" id="gate" aria-labelledby="gate-title">
-    <form class="gate-form" id="gate-form" novalidate>
-      <button type="button" class="gate-close" data-close aria-label="Close">&times;</button>
-      <h2 id="gate-title">Open the demo</h2>
-      <p class="gate-sub">Leave your name and email so we can ask how it went. No newsletter.</p>
-      <label class="field">
-        <span>Name</span>
-        <input name="name" type="text" autocomplete="name" required maxlength="100">
-        <em class="err" data-err="name" hidden>Enter your name.</em>
-      </label>
-      <label class="field">
-        <span>Email</span>
-        <input name="email" type="email" autocomplete="email" inputmode="email" required maxlength="200">
-        <em class="err" data-err="email" hidden>Enter an email like name@company.com.</em>
-      </label>
-      <button type="submit" class="btn btn-block">Open the demo</button>
-      <p class="gate-note">The demo uses sample data and doesn't connect to your real calendar. We use your email only to contact you about Chrona.</p>
-    </form>
-  </dialog>
 
   <script src="demo/js/tetris.js"></script>
   <script src="demo/js/tetris-presets.js"></script>
   <script src="js/week.js"></script>
-  <script src="js/leads.js"></script>
+  <script src="demo/js/leads.js"></script>
+  <script src="demo/js/early-access.js"></script>
   <script src="js/loop.js"></script>
   <script src="js/board.js"></script>
   <script src="js/scenes.js"></script>
-  <script src="js/gate.js"></script>
+  <script src="js/page.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
-/* Where the "Open the demo" form sends name and email.
-   Today nothing is sent: `endpoint` is null, so the form only checks the input and opens the demo.
+/* Where the early access form (js/early-access.js, features/early-access.feature) sends name and email.
+   Shared by the landing page and the demo. Today nothing is sent: `endpoint` is null.
    To start collecting contacts, set `endpoint` to an HTTPS URL that accepts the POST described in
    landing/README.md ("Contact collection"), e.g. an AWS API Gateway route backed by a Lambda. */
 window.ChronaLeads = (function () {
@@ -34,6 +34,7 @@ window.ChronaLeads = (function () {
     var body = JSON.stringify({
       name: lead.name,
       email: lead.email,
+      via: lead.via || null,
       source: source(),
       page: location.origin + location.pathname,
       submittedAt: new Date().toISOString(),

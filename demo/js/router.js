@@ -30,7 +30,7 @@
     hdr.innerHTML = `<div class="logo"><span class="mark"></span><span class="logo-name">Chrona</span></div>
       <nav class="nav">${NAV.map(([h, l]) => `<a href="${h}" class="${h === hash ? 'on' : ''}" id="nav-${l.toLowerCase()}">${l}${h === '#/review' && n ? `<b class="nb">${n}</b>` : ''}</a>`).join('')}</nav>
       <div class="avwrap"><span class="avatar" data-avatar="1" title="Account">${C.esc((s.email || 'Y')[0].toUpperCase())}</span>
-        <div class="avmenu" hidden><div class="avmail">${C.esc(s.email || 'you@example.com')}<br>Signed in with ${C.esc(s.provider || 'Google')}</div><div class="avi set${hash === '#/settings' ? ' on' : ''}" data-av="settings">Settings</div><div class="avi" data-av="reset">Reset demo</div><div class="avi dng" data-av="signout">Sign out</div></div></div>`;
+        <div class="avmenu" hidden><div class="avmail">${C.esc(s.email || 'you@example.com')}<br>Signed in with ${C.esc(s.provider || 'Google')}</div>${window.ChronaEarlyAccess && !window.ChronaEarlyAccess.sent() ? '<div class="avi ea-avi" data-av="early">Get early access</div>' : ''}<div class="avi set${hash === '#/settings' ? ' on' : ''}" data-av="settings">Settings</div><div class="avi" data-av="reset">Reset demo</div><div class="avi dng" data-av="signout">Sign out</div></div></div>`;
   }
 
   function route() {
@@ -60,7 +60,8 @@
       if (e.target.closest('[data-avatar]')) { menu.hidden = !menu.hidden; e.stopPropagation(); return; }
       const a = e.target.closest('[data-av]'); if (!a) return;
       menu.hidden = true;
-      if (a.dataset.av === 'settings') C.go('#/settings');
+      if (a.dataset.av === 'early') { if (window.ChronaEarlyAccess) window.ChronaEarlyAccess.open('demo-menu'); }
+      else if (a.dataset.av === 'settings') C.go('#/settings');
       else if (a.dataset.av === 'signout') { C.store.state.session.signedIn = false; C.store.save(); C.go('#/sign-in'); }
       else if (await C.ui.confirm({ title: 'Reset demo?', text: 'This deletes your setup, settings and all time blocks, and starts the demo from sign-in.', ok: 'Reset', danger: true })) { C.store.reset(); C.go('#/sign-in'); }
     });

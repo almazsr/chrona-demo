@@ -32,7 +32,7 @@
           <h1>Your week, arranged for you</h1>
           <p class="si-sub">Tell Chrona what needs doing. It fits your tasks around meetings and replans when the day changes.</p>
           ${PROVIDERS.map(([p, ico]) => `<button type="button" class="si-btn" data-provider="${p}">${ico}Continue with ${p}</button>`).join('')}
-          <div class="si-foot">Demo mode: no real account is used</div>
+          <div class="si-foot">Demo mode: sample data, no real account, nothing connects to your calendar.${window.ChronaEarlyAccess && !window.ChronaEarlyAccess.sent() ? ' <a href="#" class="si-ea" data-early-access="demo-sign-in">Get early access</a>' : ''}</div>
         </div></div>
         <div class="si-right">
           <div class="si-desktop-week" aria-hidden="true"></div>
