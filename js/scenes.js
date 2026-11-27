@@ -212,7 +212,6 @@
     if (!host) return;
     var stage = host.querySelector('.scene-stage');
     var seg = (host.closest('.feat') || host).querySelectorAll('[data-mode]');
-    var note = host.querySelector('[data-focus-note]');
     var mode = 'deadlines', auto = null, manual = false;
     stage.innerHTML = '<div class="scene-cal"></div>';
     var cal = Mini(stage.querySelector('.scene-cal'), { days: ['Mon', 'Tue', 'Wed'], from: 9, to: 18 });
@@ -232,13 +231,11 @@
         cal.move('p1', 2, '09:00', '13:00');
         cal.move('p2', 2, '10:30', '13:00');
         p2.classList.add('is-gone');
-        note.textContent = 'One 4-hour piece on Wednesday, the first free slot where it fits whole.';
       } else {
         cal.title('p1', 'Write proposal 1/2');
         p2.classList.remove('is-gone');
         cal.move('p1', 0, '09:00', '10:30');
         cal.move('p2', 0, '14:00', '16:30');
-        note.textContent = 'Starts on Monday in two parts, in the earliest free time.';
       }
       p1.classList.toggle('is-moved', !quiet); p2.classList.toggle('is-moved', !quiet);
     }

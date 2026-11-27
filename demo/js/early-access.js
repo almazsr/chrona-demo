@@ -25,7 +25,8 @@
   var st = load();
   function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* storage blocked: keep in memory */ } }
 
-  var root, card, form, done, pill, corner = false;
+  var root, card, form, done, pill;
+  var corner = null; // set by the demo: says whether the corner button may show on the current screen
 
   function build() {
     if (root) return;
@@ -82,15 +83,23 @@
     card.hidden = true;
     if (st.sent) return;
     st.collapsed = true; save();
-    if (corner) showPill(true);
+    if (corner && corner()) showPill(true);
   }
 
   function showPill(glow) {
-    if (st.sent || !corner) return;
+    if (st.sent || !corner || !corner()) return;
     build();
     pill.hidden = false;
     pill.classList.remove('is-glow');
     if (glow && !reduced.matches) { void pill.offsetWidth; pill.classList.add('is-glow'); }
+  }
+
+  function refreshPill() {
+    if (!corner) return;
+    var want = !st.sent && (st.collapsed || st.autoShown) && corner();
+    if (!want) { if (pill) pill.hidden = true; return; }
+    if (card && !card.hidden) return;
+    if (!pill || pill.hidden) showPill(false);
   }
 
   function submit(e) {
@@ -133,8 +142,9 @@
     open: open,
     sent: function () { return !!st.sent; },
     onSent: function (fn) { listeners.push(fn); },
-    // the demo shows the corner button once the form has been offered
-    corner: function () { corner = true; if ((st.collapsed || st.autoShown) && !st.sent) showPill(false); },
+    // the demo shows the corner button once the form has been offered or closed, and only where `allowed()` says
+    corner: function (allowed) { corner = allowed || function () { return true; }; refreshPill(); },
+    refresh: function () { refreshPill(); },
   };
 
   // ---------- demo: offer the form after useful work ----------
@@ -197,6 +207,15 @@
     open('auto', { auto: true });
   }
 
-  function start() { window.ChronaEarlyAccess.corner(); }
+  // the corner button lives only on the main screens, after setup: never on sign-in or setup
+  function afterSetup() {
+    var s = C.store.state.session, r = (C.currentRoute && C.currentRoute()) || location.hash;
+    return s.signedIn && s.setupDone && !/^#\/(setup|sign-in)/.test(r);
+  }
+  function start() {
+    window.ChronaEarlyAccess.corner(afterSetup);
+    window.addEventListener('hashchange', function () { setTimeout(refreshPill, 0); });
+    C.store.on(function () { refreshPill(); });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
