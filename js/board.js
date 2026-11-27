@@ -66,7 +66,8 @@
   function makeBlock(b) {
     var el = document.createElement('div');
     el.className = 'blk ' + (b[1] === 'fixed' ? 'blk-meet' : 'blk-work');
-    el.innerHTML = '<div class="bt">' + (b.ext ? CAL : '') + '<b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div><small></small>';
+    el.innerHTML = '<div class="bt">' + (b.ext ? CAL : '') + '<b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div>'
+      + (b.ext ? '<small class="src">' + b.ext + '</small>' : '') + '<small></small>';
     el.querySelector('b').textContent = b[2];
     grid.appendChild(el);
     els[b[0]] = el;
@@ -112,12 +113,16 @@
   }
 
   var moves = BLOCKS.filter(function (b) { return b[6]; });
-  CALL.ext = true;
+  CALL.ext = 'Work calendar';
 
   // "New in your calendar": the event shows up first, then lands on Tuesday
   var incoming = document.createElement('div');
   incoming.className = 'incoming';
-  incoming.innerHTML = '<span class="inc-ic">' + CAL + '</span><span class="inc-tx"><b>New in your calendar</b><span>Client call \u00b7 Tue 10:00\u2013' + '12:00</span></span>';
+  // an invitation as it looks in the visitor's own calendar app, before Chrona reads it
+  incoming.innerHTML = '<div class="inc-head"><span class="inc-ic">' + CAL + '</span>Work calendar<span class="inc-src">external</span></div>'
+    + '<div class="inc-ev"><b>Client call with Acme</b><span>Tue 10:00\u2013' + '12:00</span>'
+    + '<span class="inc-org">Invited by anna@acme.co</span><span class="inc-ok">Accepted</span></div>'
+    + '<div class="inc-foot">Chrona reads it. Nothing is written back.</div>';
   frame.appendChild(incoming);
 
   // first frame: the week before the call
@@ -148,7 +153,7 @@
     void call.offsetWidth; // start the transition from the hidden state
     call.classList.remove('is-new');
     call.classList.add('is-in');
-    addLog('Client call arrived from your calendar, Tue 10:00–12:00', true);
+    addLog('Client call arrived from your Work calendar, Tue 10:00–12:00', true);
   }
 
   // every displaced task moves at the same time, as in the demo's calendar
@@ -172,6 +177,6 @@
 
   window.ChronaLoop(frame, function () {
     reset();
-    return { steps: [[300, announce], [1500, dropCall], [900, replan], [2000, report]] };
+    return { steps: [[300, announce], [2200, dropCall], [900, replan], [2000, report]] };
   });
 })();
