@@ -5,7 +5,7 @@
 .cx .scr-signin .si-left { display:flex; flex-direction:column; justify-content:center; padding:40px 7%; }
 .cx .scr-signin .si-panel { width:100%; max-width:360px; margin:0 auto; }
 .cx .scr-signin .si-logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px; letter-spacing:-.2px; }
-.cx .scr-signin .si-mark { width:26px; height:26px; border-radius:7px; background:#8ec5f5; }
+.cx .scr-signin .si-mark { width:26px; height:26px; background:url(../img/logo/mark.svg) center / contain no-repeat; }
 .cx .scr-signin h1 { margin:30px 0 10px; font-size:28px; line-height:1.2; letter-spacing:-.4px; }
 .cx .scr-signin .si-sub { color:#5b6878; font-size:14px; line-height:1.55; margin:0 0 22px; }
 .cx .scr-signin .si-btn { display:flex; align-items:center; gap:12px; width:100%; box-sizing:border-box; padding:11px 14px; margin-top:10px; border-radius:10px; background:#fff; border:1px solid #d9e0ea; color:#1d2633; font:inherit; font-size:14px; font-weight:500; cursor:pointer; text-align:left; }

@@ -8,7 +8,7 @@ html, body { margin:0; height:100%; background:#f4f6f9; }
 .cx .hdr { display:flex; align-items:center; gap:24px; padding:10px 18px; background:#fff; border-bottom:1px solid #e3e8ef; flex-shrink:0; }
 .cx .hdr[hidden] { display:none; }
 .cx .logo { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
-.cx .mark { width:18px; height:18px; border-radius:5px; background:#8ec5f5; }
+.cx .mark { width:18px; height:18px; background:url(../img/logo/mark.svg) center / contain no-repeat; }
 .cx .nav { display:flex; gap:4px; flex:1; }
 .cx .nav a { padding:6px 12px; border-radius:8px; color:#5b6878; font-weight:500; text-decoration:none; display:inline-flex; align-items:center; }
 .cx .nav a:hover { background:#f1f4f8; }
