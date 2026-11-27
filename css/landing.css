@@ -359,16 +359,12 @@ h2 { font-size: clamp(1.75rem, 1.25rem + 1.8vw, 2.5rem); font-weight: 700; lette
 
 /* ---------- responsive ---------- */
 /* ---------- AI harness (MCP) scene ---------- */
-.mcp-points { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; margin-top: 28px; max-width: 920px; }
-.mcp-points h3 { font-size: 1.1875rem; letter-spacing: -.005em; margin-bottom: 6px; }
-.mcp-points p { color: var(--muted); font-size: .9375rem; max-width: 42ch; }
-.mcp-fig { margin-top: 32px; }
-.mcp-fig .scene-stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; align-items: stretch; }
+#scene-mcp .scene-stage { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 16px; align-items: stretch; }
 .chat { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-height: 280px; }
 .chat-h { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); font-size: .8125rem; font-weight: 600; color: var(--text); }
 .chat-ic { width: 24px; height: 24px; border-radius: 7px; background: #efeafd; color: #7c5ce0; display: inline-flex; align-items: center; justify-content: center; }
 .chat-ic svg { width: 15px; height: 15px; }
-.chat-conn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: .6875rem; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.chat-conn { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; color: var(--text) !important; font-size: .6875rem; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
 .chat-conn i { width: 7px; height: 7px; border-radius: 50%; background: #43b26b; }
 .chat-log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 12px; }
 .msg { max-width: 88%; font-size: .8125rem; line-height: 1.45; border-radius: 12px; padding: 8px 11px; animation: msgIn .3s ease-out 1; }
@@ -413,9 +409,8 @@ h2 { font-size: clamp(1.75rem, 1.25rem + 1.8vw, 2.5rem); font-weight: 700; lette
   .final .btn { width: 100%; }
   .final-week .blk { display: none; }
   .scene-todo { grid-template-columns: 1fr; }
-  .mcp-fig .scene-stage { grid-template-columns: 1fr; }
-  .mcp-points { grid-template-columns: 1fr; }
-}
+  #scene-mcp .scene-stage { grid-template-columns: 1fr; }
+  }
 
 @media (prefers-reduced-motion: reduce) {
   .blk, .log li, .scene-menu, .af-caret, .msg, .msg-tool .tool-st { transition: none; animation: none; }
