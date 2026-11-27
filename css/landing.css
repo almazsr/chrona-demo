@@ -112,6 +112,24 @@ a { color: var(--link); }
 .sw { width: 26px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: flex-end; padding-right: 3px; color: rgba(29, 38, 51, .7); }
 .sw-fixed { background: var(--meet-bg); border-left: 3px solid var(--meet-edge); }
 .sw-flex { background: var(--work-bg); border-left: 3px solid var(--work-edge); }
+.sw-ext { background: var(--white); border: 1px solid var(--field); justify-content: center; padding: 0; color: var(--link); }
+.blk .ext { flex-shrink: 0; margin-top: 2px; color: rgba(29, 38, 51, .7); }
+
+/* an event arriving from the visitor's calendar (read-only connection, ALM-100) */
+.board { position: relative; }
+.incoming {
+  position: absolute; z-index: 6; top: 48px; right: 14px;
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px;
+  background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-pop);
+  font-size: .8125rem; line-height: 1.3; opacity: 0; transform: translateY(-8px); pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+}
+.incoming.on { opacity: 1; transform: none; }
+.inc-ic { width: 30px; height: 30px; border-radius: 8px; background: var(--meet-bg); color: var(--meet-edge); display: inline-flex; align-items: center; justify-content: center; }
+.inc-ic svg { width: 16px; height: 16px; }
+.inc-tx b { display: block; font-weight: 600; }
+.inc-tx span { color: var(--muted); }
+.no-anim .incoming { transition: none !important; }
 
 .board {
   --hours: 9;

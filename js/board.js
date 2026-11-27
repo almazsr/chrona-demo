@@ -1,4 +1,4 @@
-/* Replanning example: a busy week. A client call lands on Tuesday; meetings stay put and every
+/* Replanning example: a busy week. A client call arrives from the visitor's calendar and lands on Tuesday; meetings stay put and every
    displaced flexible task moves to its next free slot at the same time, then it loops (js/loop.js).
    The "after" positions are written out by hand to match how the demo's solver would place them
    (scheduling-engine.feature: "Place flexible work in nearest free slot"). */
@@ -44,6 +44,8 @@
   ];
   var LOCK = '<svg class="lk" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path fill="currentColor" d="M2.5 4.5V3a2.5 2.5 0 0 1 5 0v1.5H8a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1h.5zm1.2 0h2.6V3a1.3 1.3 0 0 0-2.6 0v1.5z"/></svg>';
   var CALL = ['t-cc', 'fixed', 'Client call', 1, '10:00', '12:00'];
+  // the call arrives from the visitor's calendar (read-only connection, ALM-100); services are not named yet (ALM-92)
+  var CAL = '<svg class="ext" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="2.3" y="3.2" width="11.4" height="10.3" rx="1.6"/><path d="M2.3 6.5h11.4M5.5 2v2.4M10.5 2v2.4"/></svg>';
 
   var board = document.getElementById('board');
   if (!board) return;
@@ -64,7 +66,7 @@
   function makeBlock(b) {
     var el = document.createElement('div');
     el.className = 'blk ' + (b[1] === 'fixed' ? 'blk-meet' : 'blk-work');
-    el.innerHTML = '<div class="bt"><b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div><small></small>';
+    el.innerHTML = '<div class="bt">' + (b.ext ? CAL : '') + '<b></b>' + (b[1] === 'fixed' ? LOCK : '') + '</div><small></small>';
     el.querySelector('b').textContent = b[2];
     grid.appendChild(el);
     els[b[0]] = el;
@@ -110,6 +112,13 @@
   }
 
   var moves = BLOCKS.filter(function (b) { return b[6]; });
+  CALL.ext = true;
+
+  // "New in your calendar": the event shows up first, then lands on Tuesday
+  var incoming = document.createElement('div');
+  incoming.className = 'incoming';
+  incoming.innerHTML = '<span class="inc-ic">' + CAL + '</span><span class="inc-tx"><b>New in your calendar</b><span>Client call \u00b7 Tue 10:00\u2013' + '12:00</span></span>';
+  frame.appendChild(incoming);
 
   // first frame: the week before the call
   function reset() {
@@ -121,12 +130,16 @@
     });
     state = 'before';
     log.innerHTML = '';
+    incoming.classList.remove('on');
     layout();
   }
+
+  function announce() { incoming.classList.add('on'); }
 
   // the call drops in on top of work
   function dropCall() {
     state = 'after';
+    incoming.classList.remove('on');
     makeBlock(CALL);
     var call = els[CALL[0]];
     call.classList.add('is-new');
@@ -135,7 +148,7 @@
     void call.offsetWidth; // start the transition from the hidden state
     call.classList.remove('is-new');
     call.classList.add('is-in');
-    addLog('Client call added, Tue 10:00–12:00', true);
+    addLog('Client call arrived from your calendar, Tue 10:00–12:00', true);
   }
 
   // every displaced task moves at the same time, as in the demo's calendar
@@ -159,6 +172,6 @@
 
   window.ChronaLoop(frame, function () {
     reset();
-    return { steps: [[300, dropCall], [900, replan], [2000, report]] };
+    return { steps: [[300, announce], [1500, dropCall], [900, replan], [2000, report]] };
   });
 })();
